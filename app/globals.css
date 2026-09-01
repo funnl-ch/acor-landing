@@ -1,27 +1,366 @@
+/* ACOR landing — gris clair, carte 12px, hairline.
+   Couleur principale #3f3f3e : boutons, footer, barre, sélection, accents. */
+
+:root {
+  --color-canvas: #f4f4f4;
+  --color-bg: #ffffff;
+  --color-ink: #111111;
+  --color-muted: #6b7280;
+  --color-brand: #3f3f3e;
+  --color-brand-soft: color-mix(in srgb, var(--color-brand) 9%, white);
+  --color-border: #d8d8d8;
+  --color-focus: #3f3f3e;
+  --button-height: 56px;
+  --body-size: 17px;
+  --radius: 12px;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  body {
+    background: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-inter), Helvetica, Arial, sans-serif;
+    font-size: var(--body-size);
+    font-weight: 400;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+
+  footer :focus-visible {
+    outline-color: #ffffff;
+  }
+
+  ::selection {
+    background: var(--color-brand);
+    color: #ffffff;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-}
+@layer components {
+  .btn-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: var(--button-height);
+    padding: 0.85rem 1.25rem;
+    border: 0;
+    border-radius: var(--radius);
+    appearance: none;
+    background: var(--color-brand);
+    color: #ffffff;
+    font-size: 17px;
+    font-weight: 500;
+    text-align: center;
+    cursor: pointer;
+  }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  .btn-submit:hover:not(:disabled) {
+    background: #2a2a29;
+  }
+
+  .btn-submit:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+  }
+
+  .btn-next {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--button-height);
+    padding: 0.85rem 1.4rem;
+    border: 0;
+    border-radius: var(--radius);
+    appearance: none;
+    background: var(--color-brand);
+    color: #ffffff;
+    font-size: 17px;
+    font-weight: 500;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .btn-next:hover:not(:disabled) {
+    background: #2a2a29;
+  }
+
+  .btn-next:disabled {
+    cursor: not-allowed;
+    opacity: 0.35;
+  }
+
+  .btn-header-phone {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-height: 36px;
+    padding: 0.35rem 0.85rem;
+    border: 0;
+    border-radius: var(--radius);
+    background: var(--color-brand);
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .btn-header-phone:hover {
+    background: #2a2a29;
+  }
+
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--button-height);
+    padding: 0.5rem 0.25rem;
+    border: 0;
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--color-muted);
+    font-size: 17px;
+    font-weight: 400;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+
+  .choice-btn {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.85rem;
+    width: 100%;
+    min-height: var(--button-height);
+    padding: 0.7rem 1rem;
+    border: 0.5px solid var(--color-border);
+    border-radius: var(--radius);
+    appearance: none;
+    background: #ffffff;
+    color: var(--color-ink);
+    font-size: 17px;
+    font-weight: 400;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .choice-btn[aria-pressed="true"] {
+    background: var(--color-brand-soft);
+    border: 2px solid var(--color-brand);
+    padding: calc(0.7rem - 1.5px) calc(1rem - 1.5px);
+  }
+
+  .field-input {
+    width: 100%;
+    min-height: var(--button-height);
+    padding: 0.8rem 1rem;
+    border: 0.5px solid var(--color-border);
+    border-radius: var(--radius);
+    appearance: none;
+    background: #ffffff;
+    color: var(--color-ink);
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1.4;
+  }
+
+  .field-input::placeholder {
+    color: #8a8a8a;
+  }
+
+  .field-label {
+    display: block;
+    margin-bottom: 0.4rem;
+    color: var(--color-ink);
+    font-size: 17px;
+    font-weight: 500;
+  }
+
+  .field-hint {
+    margin-top: 0.35rem;
+    color: var(--color-muted);
+    font-size: 17px;
+  }
+
+  .honeypot {
+    position: absolute;
+    left: -10000px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .skip-link {
+    position: absolute;
+    left: 0.75rem;
+    top: -100px;
+    z-index: 100;
+    background: var(--color-brand);
+    color: #ffffff;
+    padding: 0.75rem 1.25rem;
+    min-height: var(--button-height);
+    border-radius: var(--radius);
+  }
+
+  .skip-link:focus {
+    top: 0.75rem;
+  }
+
+  .word-accent {
+    color: var(--color-brand);
+  }
+
+  .legal-body {
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1.6;
+    color: var(--color-ink);
+    text-align: left;
+  }
+
+  .legal-body p + p {
+    margin-top: 1rem;
+  }
+
+  .legal-body h2 {
+    margin-top: 2.5rem;
+    margin-bottom: 0.75rem;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0;
+    line-height: 1.35;
+  }
+
+  .legal-body a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .reviews-scroller {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-behavior: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    scroll-padding-left: 1.25rem;
+  }
+
+  .reviews-scroller::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (min-width: 640px) {
+    .reviews-scroller {
+      padding-left: max(2rem, calc((100% - 64rem) / 2 + 2rem));
+      padding-right: 1.25rem;
+      scroll-padding-left: max(2rem, calc((100% - 64rem) / 2 + 2rem));
+    }
+  }
+
+  .reviews-card {
+    display: flex;
+    flex-direction: column;
+    flex: 0 0 80vw;
+    width: 80vw;
+    scroll-snap-align: start;
+    padding: 20px;
+    background: #ffffff;
+    border: 0.5px solid #ececec;
+    border-radius: 12px;
+  }
+
+  @media (min-width: 640px) {
+    .reviews-card {
+      flex-basis: 300px;
+      width: 300px;
+    }
+  }
+
+  .reviews-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--color-muted);
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1;
+  }
+
+  .reviews-quote {
+    display: -webkit-box;
+    overflow: hidden;
+    color: #3f3f3e;
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1.45;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+  }
+
+  .reviews-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 0.5px solid #ececec;
+    border-radius: 50%;
+    background: #ffffff;
+    color: var(--color-muted);
+    cursor: pointer;
+  }
+
+  .reviews-arrow:hover:not(:disabled) {
+    color: var(--color-ink);
+  }
+
+  .reviews-arrow:disabled {
+    cursor: default;
+    opacity: 0.35;
   }
 }

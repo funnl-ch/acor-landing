@@ -9,11 +9,33 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        canvas: "var(--color-canvas)",
+        ink: "var(--color-ink)",
+        muted: "var(--color-muted)",
+        page: "var(--color-bg)",
+        line: "var(--color-border)",
+        brand: "var(--color-brand)",
+        "brand-soft": "var(--color-brand-soft)",
+      },
+      fontFamily: {
+        sans: ["var(--font-inter)", "Helvetica", "Arial", "sans-serif"],
+      },
+      borderRadius: {
+        box: "12px",
+      },
+      minHeight: {
+        btn: "56px",
+      },
+      fontSize: {
+        body: ["17px", { lineHeight: "1.55" }],
+      },
+      fontWeight: {
+        normal: "400",
+        medium: "500",
       },
     },
   },
   plugins: [],
 };
+
 export default config;
