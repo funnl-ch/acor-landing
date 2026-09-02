@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AGENCY } from "@/lib/constants";
+import { AGENCY, FUNNL } from "@/lib/constants";
 import { Logo } from "./Logo";
 import { PhoneLink } from "./PhoneLink";
 
@@ -40,6 +40,15 @@ export function Footer() {
           >
             Politique de confidentialité
           </Link>
+          <span>
+            Créé par{" "}
+            <a
+              href={FUNNL.website}
+              className="underline-offset-4 hover:text-white hover:underline"
+            >
+              {FUNNL.name}
+            </a>
+          </span>
         </nav>
       </div>
     </footer>

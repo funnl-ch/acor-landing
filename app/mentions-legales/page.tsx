@@ -19,7 +19,7 @@ export default function MentionsLegalesPage() {
         {" · "}
         <a href={`mailto:${AGENCY.email}`}>{AGENCY.email}</a>
         <br />
-        [PLACEHOLDER — numéro CHE au registre du commerce]
+        {AGENCY.che}
       </p>
       <p>
         Rien de ce qui figure sur le site ne doit être interprété comme un droit

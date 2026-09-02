@@ -8,6 +8,12 @@ export const AGENCY = {
   phoneHref: "tel:+41273221025",
   email: "info@acor-immo.ch",
   website: "https://www.acor-immo.ch/fr",
+  che: "CH-626.4.014.358-2",
+} as const;
+
+export const FUNNL = {
+  name: "funnl.ch",
+  website: "https://funnl.ch",
 } as const;
 
 export const PROPERTY_TYPES = [

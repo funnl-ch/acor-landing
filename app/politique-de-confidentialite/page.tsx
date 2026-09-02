@@ -26,7 +26,7 @@ export default function PrivacyPage() {
         {" · "}
         <a href={`mailto:${AGENCY.email}`}>{AGENCY.email}</a>
         <br />
-        [PLACEHOLDER — numéro CHE]
+        {AGENCY.che}
       </p>
 
       <h2>Données collectées</h2>
