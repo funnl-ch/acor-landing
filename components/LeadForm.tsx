@@ -9,6 +9,7 @@ import {
   type FormEvent,
   type KeyboardEvent,
 } from "react";
+import { GoogleRating } from "@/components/GoogleRating";
 import { PropertyTypeIcon } from "@/components/PropertyTypeIcon";
 import { filterCommunes } from "@/lib/communes";
 import { trackLead } from "@/lib/oaiq";
@@ -335,7 +336,7 @@ export function LeadForm() {
       className="scroll-mt-[64px] bg-page"
       aria-labelledby="form-title"
     >
-      <div className="mx-auto max-w-xl px-5 pb-8 pt-1 sm:px-8 sm:pb-12">
+      <div className="mx-auto max-w-xl px-5 pb-6 pt-1 sm:px-8 sm:pb-8">
         <div className={cardClass}>
           <div className="mb-6 flex items-center gap-4">
             <div
@@ -715,10 +716,11 @@ export function LeadForm() {
             )}
           </form>
         </div>
-        <p className="mt-4 px-1 text-[17px] text-muted">
+        <p className="mt-4 px-1 text-center text-[17px] leading-snug text-muted">
           Vos données ne sont ni vendues ni transmises à d’autres agences. Pas de
           newsletter.
         </p>
+        <GoogleRating />
       </div>
     </section>
   );

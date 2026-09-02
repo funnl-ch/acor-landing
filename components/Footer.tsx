@@ -7,7 +7,9 @@ export function Footer() {
   return (
     <footer className="mt-3 overflow-hidden rounded-t-[12px] bg-[#3f3f3e] text-white">
       <div className="mx-auto max-w-6xl px-5 py-12 sm:px-8 sm:py-14">
-        <Logo inverted className="h-10 w-auto" />
+        <a href={AGENCY.website} aria-label="ACOR Immobilier, site officiel">
+          <Logo inverted className="h-10 w-auto" />
+        </a>
         <address className="mt-7 not-italic text-body">
           <p className="font-medium">{AGENCY.name}</p>
           <p className="mt-1 text-white/60">

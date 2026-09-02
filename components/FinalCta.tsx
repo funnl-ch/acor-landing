@@ -11,7 +11,7 @@ export function FinalCta() {
           id="cta-title"
           className="text-[24px] font-extrabold leading-[1.15] tracking-[-0.035em] text-ink sm:text-[32px]"
         >
-          Vous n’êtes pas obligé de vendre pour savoir combien.
+          Demander une estimation n’engage à rien.
         </h2>
         <p className="mt-4 text-[17px] font-normal text-muted">
           Deux minutes, six questions, et un courtier vous rappelle.

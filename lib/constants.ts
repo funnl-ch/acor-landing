@@ -7,6 +7,7 @@ export const AGENCY = {
   phoneDisplay: "027 322 10 25",
   phoneHref: "tel:+41273221025",
   email: "info@acor-immo.ch",
+  website: "https://www.acor-immo.ch/fr",
 } as const;
 
 export const PROPERTY_TYPES = [

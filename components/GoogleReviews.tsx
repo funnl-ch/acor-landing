@@ -2,11 +2,6 @@
 
 import { useCallback, useLayoutEffect, useRef } from "react";
 
-const GOOGLE_RATING = {
-  score: "4,9",
-  count: "58 avis Google",
-} as const;
-
 const REVIEWS = [
   {
     name: "Janny C.",
@@ -115,50 +110,28 @@ export function GoogleReviews() {
 
   return (
     <section className="bg-page" aria-label="Avis Google">
-      <div className="mx-auto max-w-5xl px-5 pt-16 sm:px-8 sm:pt-20">
-        <div className="flex items-center justify-between gap-4">
-          <p
-            className="flex flex-wrap items-baseline gap-x-2"
-            aria-label={`${GOOGLE_RATING.score} sur 5, ${GOOGLE_RATING.count}`}
-          >
-            <span className="text-[23px] font-semibold leading-none text-ink">
-              {GOOGLE_RATING.score}
-            </span>
-            <span
-              className="text-[17px] leading-none tracking-tight text-[#FBBC04]"
-              aria-hidden="true"
-            >
-              ★★★★★
-            </span>
-            <span className="text-[17px] font-normal text-muted">
-              · {GOOGLE_RATING.count}
-            </span>
-          </p>
-
-          <div className="hidden shrink-0 items-center gap-1 md:flex">
-            <button
-              type="button"
-              className="reviews-arrow"
-              aria-label="Avis précédents"
-              onClick={() => scrollByCard(-1)}
-            >
-              <ChevronLeft />
-            </button>
-            <button
-              type="button"
-              className="reviews-arrow"
-              aria-label="Avis suivants"
-              onClick={() => scrollByCard(1)}
-            >
-              <ChevronRight />
-            </button>
-          </div>
-        </div>
+      <div className="mx-auto hidden max-w-5xl items-center justify-end px-5 pt-6 sm:px-8 md:flex">
+        <button
+          type="button"
+          className="reviews-arrow"
+          aria-label="Avis précédents"
+          onClick={() => scrollByCard(-1)}
+        >
+          <ChevronLeft />
+        </button>
+        <button
+          type="button"
+          className="reviews-arrow ml-1"
+          aria-label="Avis suivants"
+          onClick={() => scrollByCard(1)}
+        >
+          <ChevronRight />
+        </button>
       </div>
 
       <ul
         ref={scrollerRef}
-        className="reviews-scroller mt-8 pb-16 sm:pb-20"
+        className="reviews-scroller mt-6 pb-16 md:mt-4 sm:pb-20"
         aria-label="Avis de clients"
       >
         {LOOPED_REVIEWS.map((item) => (
