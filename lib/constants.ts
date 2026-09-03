@@ -13,6 +13,7 @@ export const AGENCY = {
 // pas d'URL : aucun lien sortant sur cette landing, le trafic est payant
 export const FUNNL = {
   name: "funnl.ch",
+  website: "https://funnl.ch",
 } as const;
 
 export const PROPERTY_TYPES = [

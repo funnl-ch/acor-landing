@@ -54,26 +54,43 @@ export function Footer() {
           </div>
         </div>
 
-        <nav
-          className="muted-canvas mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-[#e2e2e2] pt-6 text-[15px] sm:gap-x-3"
-          aria-label="Mentions"
-        >
-          {LEGAL_LINKS.map((item) => (
-            <Fragment key={item.href}>
-              <Link
-                href={item.href}
-                className="whitespace-nowrap underline-offset-4 hover:underline"
-              >
-                {item.label}
-              </Link>
-              {/* le point médian tomberait en fin de ligne quand la liste passe sur deux lignes */}
-              <span aria-hidden="true" className="hidden sm:inline">
-                ·
-              </span>
-            </Fragment>
-          ))}
-          <span className="whitespace-nowrap">Créé par {FUNNL.name}</span>
-        </nav>
+        <div className="mt-6 border-t border-[#e2e2e2] pt-6">
+          <nav
+            className="muted-canvas flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[15px] sm:justify-start sm:gap-x-3"
+            aria-label="Mentions"
+          >
+            {LEGAL_LINKS.map((item, index) => (
+              <Fragment key={item.href}>
+                {/* le point médian tomberait en fin de ligne quand la liste passe sur deux lignes */}
+                {index > 0 && (
+                  <span aria-hidden="true" className="hidden sm:inline">
+                    ·
+                  </span>
+                )}
+                <Link
+                  href={item.href}
+                  className="whitespace-nowrap underline-offset-4 hover:underline"
+                >
+                  {item.label}
+                </Link>
+              </Fragment>
+            ))}
+          </nav>
+
+          {/* ligne à part : accolée aux liens légaux, la mention repassait
+              à la ligne dès que la largeur diminuait */}
+          <p className="muted-canvas mt-6 text-center text-[13px]">
+            Créé par{" "}
+            <a
+              href={FUNNL.website}
+              target="_blank"
+              rel="noopener"
+              className="underline-offset-4 hover:underline"
+            >
+              {FUNNL.name}
+            </a>
+          </p>
+        </div>
       </div>
     </footer>
   );

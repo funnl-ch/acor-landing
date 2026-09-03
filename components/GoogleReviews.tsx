@@ -3,36 +3,38 @@
 import { useCallback, useLayoutEffect, useRef } from "react";
 import { GoogleRating } from "@/components/GoogleRating";
 
+// Versions abrégées des avis Google : le texte doit tenir en entier dans la
+// carte, une citation coupée en plein milieu d'une phrase ne rassure personne.
 const REVIEWS = [
   {
     name: "Janny C.",
     ago: "il y a 11 mois",
     quote:
-      "Ricardo a pris en charge la vente de mon appartement, après 2 autres courtiers qui n’arrivaient pas à le vendre. Il l’a vendu à un prix qui dépassait mes espérances.",
+      "Ricardo a pris en charge la vente de mon appartement, après 2 autres courtiers qui n’y arrivaient pas. Vendu au-dessus de mes espérances.",
   },
   {
     name: "Reis H.",
     ago: "il y a 9 mois",
     quote:
-      "Je remercie Monsieur Ricardo Monteiro pour notre collaboration dans la vente de notre appartement. Très sérieux, doté d’une excellente communication et particulièrement efficace.",
+      "Très sérieux, doté d’une excellente communication et particulièrement efficace dans la vente de notre appartement.",
   },
   {
     name: "Lionel C.",
     ago: "il y a un an",
     quote:
-      "Un grand merci pour votre professionnalisme, votre écoute et votre gentillesse. Une agence tip top que nous ne pouvons que recommander.",
+      "Un grand merci pour votre professionnalisme, votre écoute et votre gentillesse. Une agence que nous recommandons.",
   },
   {
     name: "Bertrand B.",
     ago: "il y a 9 mois",
     quote:
-      "Un grand merci à Florian Bureau pour son professionnalisme, sa sympathie et sa bonne humeur. Vous pouvez lui faire totale confiance.",
+      "Un grand merci à Florian Bureau pour son professionnalisme. Vous pouvez lui faire totale confiance.",
   },
   {
     name: "Urs R.",
     ago: "il y a 8 mois",
     quote:
-      "J’ai rencontré un agent immobilier compétent, efficace et en plus très sympathique. Tout s’est déroulé parfaitement. À recommander sans réserve.",
+      "Un agent immobilier compétent, efficace et très sympathique. Tout s’est déroulé parfaitement. À recommander sans réserve.",
   },
 ] as const;
 

@@ -365,12 +365,18 @@ export function LeadForm() {
             id="form-title"
             ref={headingRef}
             tabIndex={-1}
-            className="form-on-video text-balance text-[22px] font-extrabold leading-snug tracking-[-0.03em] text-white"
+            className="form-on-video min-h-[3.8rem] text-balance text-[22px] font-extrabold leading-snug tracking-[-0.03em] text-white sm:min-h-0"
           >
             {STEP_TITLES[step - 1]}
           </h2>
 
-          <form className="mt-5 flex flex-col" onSubmit={onSubmit} noValidate>
+          {/* Hauteur calée sur les étapes 1 à 5 : sans elle, chaque changement
+              d'étape déplaçait tout le hero sous le doigt. */}
+          <form
+            className="mt-5 flex min-h-[25rem] flex-col"
+            onSubmit={onSubmit}
+            noValidate
+          >
             <input
               type="text"
               name="website"
@@ -387,7 +393,8 @@ export function LeadForm() {
             <input type="hidden" name="gclid" value={data.gclid} />
             <input type="hidden" name="referrer" value={data.referrer} />
 
-            <div>
+            {/* grow : absorbe l'espace libre pour que les boutons restent en bas */}
+            <div className="grow">
               {step === 1 && (
                 <div className="grid gap-2.5" role="group" aria-label="Type de bien">
                   {PROPERTY_TYPES.map((item, index) => (

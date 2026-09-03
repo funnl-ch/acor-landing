@@ -530,9 +530,9 @@
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
     -ms-overflow-style: none;
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
-    scroll-padding-left: 1.25rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    scroll-padding-left: 1rem;
   }
 
   .reviews-scroller::-webkit-scrollbar {
@@ -551,8 +551,8 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    flex: 0 0 80vw;
-    width: 80vw;
+    flex: 0 0 85vw;
+    width: 85vw;
     scroll-snap-align: start;
     padding: 20px;
     background: #ffffff;
@@ -598,15 +598,10 @@
   }
 
   .reviews-quote {
-    display: -webkit-box;
-    overflow: hidden;
     color: #3f3f3e;
     font-size: 17px;
     font-weight: 400;
     line-height: 1.45;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 4;
-    line-clamp: 4;
   }
 
   .reviews-arrow {
