@@ -13,7 +13,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Combien vaut votre bien en Valais ? | ACOR Immobilier",
+  title: "Combien vaut votre bien en Valais\u00A0? | ACOR Immobilier",
   description:
     "Un courtier ACOR se déplace et vous remet une estimation écrite, gratuite et sans engagement. Agence à Sion, Valais.",
   robots: { index: true, follow: true },
@@ -34,11 +34,7 @@ export default function RootLayout({
         <a className="skip-link" href="#contenu">
           Aller au contenu
         </a>
-        <div className="bg-canvas px-3 pt-3 sm:px-6 sm:pt-6">
-          <div className="mx-auto max-w-6xl overflow-hidden rounded-[12px] border-[0.5px] border-line bg-page">
-            {children}
-          </div>
-        </div>
+        {children}
         <Footer />
         <p className="sr-only">
           {AGENCY.name}, {AGENCY.street}, {AGENCY.zip} {AGENCY.city}

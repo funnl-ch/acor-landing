@@ -7,7 +7,10 @@
   --color-ink: #111111;
   --color-muted: #6b7280;
   --color-brand: #3f3f3e;
-  --color-brand-soft: color-mix(in srgb, var(--color-brand) 9%, white);
+  --color-brand-soft: color-mix(in srgb, var(--color-brand) 8%, white);
+  /* --color-brand tombe à ~1,3:1 sur la vidéo assombrie du hero, donc invisible.
+     Version éclaircie réservée aux tracés posés sur fond sombre. */
+  --color-brand-on-dark: color-mix(in srgb, var(--color-brand) 45%, white);
   --color-border: #d8d8d8;
   --color-focus: #3f3f3e;
   --button-height: 56px;
@@ -53,7 +56,7 @@
     outline-offset: 3px;
   }
 
-  footer :focus-visible {
+  .cta-brand :focus-visible {
     outline-color: #ffffff;
   }
 
@@ -86,35 +89,41 @@
     background: #2a2a29;
   }
 
-  .btn-submit:disabled {
-    cursor: not-allowed;
-    opacity: 0.4;
-  }
-
+  /* Blanc bordé plutôt que plein : les options du formulaire sont déjà
+     blanches, seuls la bordure et le texte colorés distinguent l'action. */
   .btn-next {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     min-height: var(--button-height);
     padding: 0.85rem 1.4rem;
-    border: 0;
+    border: 2px solid var(--color-brand);
     border-radius: var(--radius);
     appearance: none;
-    background: var(--color-brand);
-    color: #ffffff;
+    background: #ffffff;
+    color: var(--color-brand);
     font-size: 17px;
-    font-weight: 500;
+    font-weight: 600;
     text-align: center;
     cursor: pointer;
+    transition:
+      background-color 150ms ease,
+      color 150ms ease;
   }
 
   .btn-next:hover:not(:disabled) {
-    background: #2a2a29;
+    background: var(--color-brand);
+    color: #ffffff;
   }
 
+  /* Translucide plutôt que gris plein : sur la vidéo, un bouton désactivé
+     opaque attire plus l'œil que le bouton actif. */
+  .btn-submit:disabled,
   .btn-next:disabled {
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.25);
+    color: rgba(255, 255, 255, 0.45);
     cursor: not-allowed;
-    opacity: 0.35;
   }
 
   .btn-header-phone {
@@ -138,6 +147,52 @@
 
   .btn-header-phone:hover {
     background: #2a2a29;
+  }
+
+  /* --color-muted ne tient pas 4.5:1 sur le fond canvas, ce gris si */
+  .muted-canvas {
+    color: #646b78;
+  }
+
+  .muted-canvas a:hover,
+  a.muted-canvas:hover {
+    color: var(--color-ink);
+  }
+
+  .footer-contact {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 48px;
+    color: var(--color-brand);
+    font-size: 18px;
+    font-weight: 500;
+    text-underline-offset: 4px;
+  }
+
+  .footer-contact:hover span {
+    text-decoration: underline;
+  }
+
+  .btn-invert {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--button-height);
+    padding: 0.85rem 1.4rem;
+    border: 0;
+    border-radius: var(--radius);
+    appearance: none;
+    background: #ffffff;
+    color: var(--color-brand);
+    font-size: 17px;
+    font-weight: 500;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .btn-invert:hover {
+    background: #ededed;
   }
 
   .btn-ghost {
@@ -239,8 +294,164 @@
     top: 0.75rem;
   }
 
-  .word-accent {
-    color: var(--color-brand);
+
+  .hero-copy {
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  .hero-underline {
+    position: relative;
+    display: inline-block;
+  }
+
+  /* Le texte passe devant : la tige du « p » traverse le trait. */
+  .hero-underline-text {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Hauteur fixe : avec preserveAspectRatio="none", elle fixe l'échelle
+     verticale à 1, donc l'amplitude de la courbe vaut ses unités en pixels. */
+  .hero-underline-mark {
+    position: absolute;
+    z-index: 0;
+    left: -4px;
+    top: calc(100% - 0.25em);
+    width: calc(100% + 8px);
+    height: 12px;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .hero-underline-mark path {
+    stroke: var(--color-brand-on-dark);
+    stroke-width: 5;
+  }
+
+  @media (max-width: 639px) {
+    .hero-underline-mark path {
+      stroke-width: 4;
+    }
+  }
+
+  .hero-phone {
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  .hero-phone:focus-visible {
+    outline-color: #ffffff;
+  }
+
+
+  .hero .google-rating-score,
+  .hero .google-rating-count,
+  .hero .google-rating-sep {
+    color: #ffffff;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  .hero .google-rating-count {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .hero .field-label {
+    color: #ffffff;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  .hero .field-hint {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .hero .btn-ghost {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  /* Question et compteur posés directement sur la vidéo, à toute largeur. */
+  .form-on-video {
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  }
+
+  .faq-item {
+    padding: 18px 20px;
+    border: 0.5px solid #ececec;
+    border-radius: 12px;
+    background: #ffffff;
+    transition:
+      border-color 150ms ease,
+      background-color 150ms ease;
+  }
+
+  .faq-item + .faq-item {
+    margin-top: 12px;
+  }
+
+  .faq-item:hover {
+    border-color: var(--color-muted);
+  }
+
+  .faq-item[data-open="true"] {
+    border-color: color-mix(in srgb, var(--color-brand) 20%, transparent);
+    background: var(--color-canvas);
+  }
+
+  /* marges négatives : le bouton couvre tout le padding de la carte
+     sans décaler le texte, et la réponse reste à 12px sous la question */
+  .faq-question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    width: calc(100% + 40px);
+    margin: -18px -20px;
+    padding: 18px 20px;
+    border: 0;
+    appearance: none;
+    background: transparent;
+    color: var(--color-ink);
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1.4;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .faq-chevron {
+    flex-shrink: 0;
+    color: var(--color-muted);
+    transition: transform 200ms ease;
+  }
+
+  .faq-question[aria-expanded="true"] .faq-chevron {
+    transform: rotate(180deg);
+  }
+
+  /* visibility garde le panneau replié hors du focus et des lecteurs d'écran */
+  .faq-panel {
+    display: grid;
+    grid-template-rows: 0fr;
+    visibility: hidden;
+    transition:
+      grid-template-rows 200ms ease,
+      visibility 200ms;
+  }
+
+  .faq-panel[data-open="true"] {
+    grid-template-rows: 1fr;
+    visibility: visible;
+  }
+
+  .faq-panel > div {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .faq-answer {
+    padding-top: 12px;
+    color: var(--color-muted);
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1.6;
   }
 
   .legal-body {
@@ -271,49 +482,42 @@
   }
 
   .google-rating {
-    display: flex;
-    flex-direction: column;
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: wrap;
     align-items: center;
+    justify-content: center;
+    gap: 0.4rem 0.5rem;
     margin-top: 1.5rem;
+    line-height: 1;
+  }
+
+  .google-rating-sep {
+    color: var(--color-muted);
+    font-weight: 400;
   }
 
   .google-rating-score {
     color: var(--color-ink);
-    font-size: 40px;
-    font-weight: 800;
-    letter-spacing: -0.05em;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
     line-height: 1;
   }
 
   .google-rating-stars {
-    display: flex;
-    align-items: center;
-    gap: 3px;
-    margin-top: 0.55rem;
-    filter: drop-shadow(0 1px 1px rgba(244, 180, 0, 0.35));
+    color: #fbbc04;
+    font-size: 15px;
+    letter-spacing: 0.06em;
+    line-height: 1;
   }
 
   .google-rating-count {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    margin-top: 0.65rem;
     color: var(--color-muted);
     font-size: 14px;
     font-weight: 500;
     letter-spacing: 0.01em;
     line-height: 1;
-  }
-
-  @media (min-width: 640px) {
-    .google-rating-score {
-      font-size: 44px;
-    }
-
-    .google-rating-stars svg {
-      width: 22px;
-      height: 22px;
-    }
   }
 
   .reviews-scroller {
@@ -344,6 +548,7 @@
   }
 
   .reviews-card {
+    position: relative;
     display: flex;
     flex-direction: column;
     flex: 0 0 80vw;
@@ -353,6 +558,22 @@
     background: #ffffff;
     border: 0.5px solid #ececec;
     border-radius: 12px;
+  }
+
+  .reviews-google-g {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 16px;
+    height: 16px;
+  }
+
+  .reviews-ago {
+    margin-top: 0.35rem;
+    color: #9ca3af;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1;
   }
 
   @media (min-width: 640px) {

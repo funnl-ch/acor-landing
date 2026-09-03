@@ -13,6 +13,7 @@ import { GoogleRating } from "@/components/GoogleRating";
 import { PropertyTypeIcon } from "@/components/PropertyTypeIcon";
 import { filterCommunes } from "@/lib/communes";
 import { trackLead } from "@/lib/oaiq";
+import { nbsp } from "@/lib/typography";
 import {
   AGENCY,
   CONDITIONS,
@@ -34,7 +35,7 @@ const STEP_TITLES = [
   "Dans quel état est le bien ?",
   "Quand souhaitez-vous vendre ?",
   "Où un courtier peut-il vous joindre ?",
-];
+].map(nbsp);
 
 type FormState = {
   propertyType: PropertyType | "";
@@ -297,34 +298,31 @@ export function LeadForm() {
   const showLand = showsLandArea(data.propertyType);
   const showNext = !AUTO_ADVANCE_STEPS.has(step) && step < TOTAL_STEPS;
 
-  const cardClass =
-    "flex flex-col rounded-[12px] border-[0.5px] border-line bg-page p-[1.75rem]";
+  const cardClass = "flex flex-col text-left";
 
   if (submitted) {
     return (
       <section
         id="estimation"
-        className="scroll-mt-[64px] bg-page"
+        className="mx-auto w-full max-w-[560px] scroll-mt-4 text-left"
         aria-labelledby="lead-first-field"
       >
-        <div className="mx-auto max-w-xl px-5 py-6 sm:px-8 sm:py-8">
-          <div className={cardClass}>
-            <p className="sr-only" aria-live="polite">
-              {liveMessage}
-            </p>
-            <h2
-              id="lead-first-field"
-              ref={headingRef}
-              tabIndex={-1}
-              className="text-[22px] font-extrabold tracking-[-0.03em] text-ink"
-            >
-              Demande envoyée
-            </h2>
-            <p className="mt-5 text-body text-ink">
-              Votre demande est enregistrée. Un courtier ACOR vous rappelle sous
-              48 heures ouvrables pour convenir d’une visite.
-            </p>
-          </div>
+        <div className={cardClass}>
+          <p className="sr-only" aria-live="polite">
+            {liveMessage}
+          </p>
+          <h2
+            id="lead-first-field"
+            ref={headingRef}
+            tabIndex={-1}
+            className="hero-copy text-[22px] font-extrabold tracking-[-0.03em] text-white"
+          >
+            Demande envoyée
+          </h2>
+          <p className="hero-copy mt-5 text-body text-white">
+            Votre demande est enregistrée. Un courtier ACOR vous rappelle sous
+            48 heures ouvrables pour convenir d’une visite.
+          </p>
         </div>
       </section>
     );
@@ -333,14 +331,13 @@ export function LeadForm() {
   return (
     <section
       id="estimation"
-      className="scroll-mt-[64px] bg-page"
+      className="mx-auto w-full max-w-[560px] scroll-mt-4 text-left"
       aria-labelledby="form-title"
     >
-      <div className="mx-auto max-w-xl px-5 pb-6 pt-1 sm:px-8 sm:pb-8">
-        <div className={cardClass}>
+      <div className={cardClass}>
           <div className="mb-6 flex items-center gap-4">
             <div
-              className="h-[4px] w-full overflow-hidden bg-[#e8e8e8]"
+              className="h-[4px] w-full overflow-hidden bg-white/20"
               role="progressbar"
               aria-valuemin={1}
               aria-valuemax={TOTAL_STEPS}
@@ -348,11 +345,14 @@ export function LeadForm() {
               aria-label={`Progression, ${step} sur ${TOTAL_STEPS}`}
             >
               <div
-                className="h-full bg-brand"
+                className="h-full bg-white"
                 style={{ width: `${progress}%` }}
               />
             </div>
-            <p className="shrink-0 text-[17px] text-muted" aria-hidden="true">
+            <p
+              className="form-on-video shrink-0 text-[17px] text-white/80"
+              aria-hidden="true"
+            >
               {step} / {TOTAL_STEPS}
             </p>
           </div>
@@ -365,7 +365,7 @@ export function LeadForm() {
             id="form-title"
             ref={headingRef}
             tabIndex={-1}
-            className="text-[22px] font-extrabold leading-snug tracking-[-0.03em] text-ink"
+            className="form-on-video text-balance text-[22px] font-extrabold leading-snug tracking-[-0.03em] text-white"
           >
             {STEP_TITLES[step - 1]}
           </h2>
@@ -530,7 +530,7 @@ export function LeadForm() {
                       />
                     </div>
                   )}
-                  <p className="text-muted">Un des champs suffit.</p>
+                  <p className="text-white/80">Un des champs suffit.</p>
                 </div>
               )}
 
@@ -651,7 +651,10 @@ export function LeadForm() {
                       checked={data.consent}
                       onChange={(event) => update("consent", event.target.checked)}
                     />
-                    <label htmlFor="consent" className="text-body text-ink">
+                    <label
+                      htmlFor="consent"
+                      className="hero-copy text-body text-white"
+                    >
                       J’accepte que ACOR Immobilier Sàrl traite mon nom, mon e-mail,
                       mon téléphone et les informations sur le bien pour me
                       recontacter au sujet de cette estimation. Ces données ne sont
@@ -673,7 +676,10 @@ export function LeadForm() {
             </div>
 
             {error && (
-              <p className="mt-5 text-body font-medium text-ink" role="alert">
+              <p
+                className="hero-copy mt-5 text-body font-medium text-white"
+                role="alert"
+              >
                 L’envoi n’a pas abouti. Appelez le{" "}
                 <a href={AGENCY.phoneHref} className="underline underline-offset-4">
                   {AGENCY.phoneDisplay}
@@ -716,12 +722,12 @@ export function LeadForm() {
             )}
           </form>
         </div>
-        <p className="mt-4 px-1 text-center text-[17px] leading-snug text-muted">
-          Vos données ne sont ni vendues ni transmises à d’autres agences. Pas de
-          newsletter.
+        <p className="hero-copy mt-4 px-1 text-center text-[15px] leading-snug text-white/85">
+          Vos données ne sont ni vendues ni transmises à d’autres agences.
         </p>
-        <GoogleRating />
-      </div>
+        <div className="flex justify-center">
+          <GoogleRating />
+        </div>
     </section>
   );
 }

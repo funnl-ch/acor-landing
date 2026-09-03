@@ -28,8 +28,8 @@ export function PhoneLink({
   tone = "dark",
   variant = "text",
 }: PhoneLinkProps) {
-  const light = tone === "light";
   const button = variant === "button";
+  const toneClass = tone === "light" ? "text-white" : "text-brand";
 
   return (
     <a
@@ -37,9 +37,7 @@ export function PhoneLink({
       className={
         button
           ? `btn-header-phone ${className}`
-          : `inline-flex min-h-btn items-center gap-2 whitespace-nowrap font-medium underline-offset-4 hover:underline ${
-              light ? "text-white" : "text-brand"
-            } ${className}`
+          : `inline-flex min-h-btn items-center gap-2 whitespace-nowrap font-medium underline-offset-4 hover:underline ${toneClass} ${className}`
       }
     >
       <PhoneIcon className={button ? "h-4 w-4 shrink-0" : "h-5 w-5 shrink-0"} />

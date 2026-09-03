@@ -1,30 +1,36 @@
 "use client";
 
 import { useCallback, useLayoutEffect, useRef } from "react";
+import { GoogleRating } from "@/components/GoogleRating";
 
 const REVIEWS = [
   {
     name: "Janny C.",
+    ago: "il y a 11 mois",
     quote:
       "Ricardo a pris en charge la vente de mon appartement, après 2 autres courtiers qui n’arrivaient pas à le vendre. Il l’a vendu à un prix qui dépassait mes espérances.",
   },
   {
     name: "Reis H.",
+    ago: "il y a 9 mois",
     quote:
       "Je remercie Monsieur Ricardo Monteiro pour notre collaboration dans la vente de notre appartement. Très sérieux, doté d’une excellente communication et particulièrement efficace.",
   },
   {
     name: "Lionel C.",
+    ago: "il y a un an",
     quote:
       "Un grand merci pour votre professionnalisme, votre écoute et votre gentillesse. Une agence tip top que nous ne pouvons que recommander.",
   },
   {
     name: "Bertrand B.",
+    ago: "il y a 9 mois",
     quote:
       "Un grand merci à Florian Bureau pour son professionnalisme, sa sympathie et sa bonne humeur. Vous pouvez lui faire totale confiance.",
   },
   {
     name: "Urs R.",
+    ago: "il y a 8 mois",
     quote:
       "J’ai rencontré un agent immobilier compétent, efficace et en plus très sympathique. Tout s’est déroulé parfaitement. À recommander sans réserve.",
   },
@@ -110,28 +116,31 @@ export function GoogleReviews() {
 
   return (
     <section className="bg-page" aria-label="Avis Google">
-      <div className="mx-auto hidden max-w-5xl items-center justify-end px-5 pt-6 sm:px-8 md:flex">
-        <button
-          type="button"
-          className="reviews-arrow"
-          aria-label="Avis précédents"
-          onClick={() => scrollByCard(-1)}
-        >
-          <ChevronLeft />
-        </button>
-        <button
-          type="button"
-          className="reviews-arrow ml-1"
-          aria-label="Avis suivants"
-          onClick={() => scrollByCard(1)}
-        >
-          <ChevronRight />
-        </button>
+      <div className="mx-auto flex max-w-5xl items-center justify-center px-5 pt-8 sm:px-8 md:justify-between">
+        <GoogleRating className="mt-0" />
+        <div className="hidden items-center md:flex">
+          <button
+            type="button"
+            className="reviews-arrow"
+            aria-label="Avis précédents"
+            onClick={() => scrollByCard(-1)}
+          >
+            <ChevronLeft />
+          </button>
+          <button
+            type="button"
+            className="reviews-arrow ml-1"
+            aria-label="Avis suivants"
+            onClick={() => scrollByCard(1)}
+          >
+            <ChevronRight />
+          </button>
+        </div>
       </div>
 
       <ul
         ref={scrollerRef}
-        className="reviews-scroller mt-6 pb-16 md:mt-4 sm:pb-20"
+        className="reviews-scroller mt-6 md:mt-4"
         aria-label="Avis de clients"
       >
         {LOOPED_REVIEWS.map((item) => (
@@ -140,12 +149,21 @@ export function GoogleReviews() {
             className="reviews-card"
             aria-hidden={item.copy !== 1}
           >
+            <img
+              src="/google-g.svg"
+              alt=""
+              width={16}
+              height={16}
+              className="reviews-google-g"
+              decoding="async"
+            />
             <span className="reviews-avatar" aria-hidden="true">
               {item.name.charAt(0)}
             </span>
             <p className="mt-3 text-[17px] font-medium leading-none text-ink">
               {item.name}
             </p>
+            <p className="reviews-ago">{item.ago}</p>
             <p
               className="mt-2 text-[14px] leading-none tracking-tight text-[#FBBC04]"
               aria-hidden="true"

@@ -108,14 +108,19 @@ export default function PrivacyPage() {
       </p>
 
       <h2>Hébergement</h2>
-      <p>[PLACEHOLDER — nom et pays de l’hébergeur]</p>
+      <p>
+        Ce site est hébergé par Vercel Inc., société établie aux États-Unis. Les
+        données transmises via le formulaire transitent par cette infrastructure.
+        L’acheminement des e-mails est assuré par Resend, également établie aux
+        États-Unis.
+      </p>
 
       <h2>Modifications</h2>
       <p>
         Cette politique peut être adaptée. La version en vigueur est celle
         publiée sur cette page.
       </p>
-      <p>Dernière mise à jour : [PLACEHOLDER — date]</p>
+      <p>Dernière mise à jour : 3 septembre 2026</p>
     </LegalArticle>
   );
 }
