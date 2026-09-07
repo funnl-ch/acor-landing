@@ -32,6 +32,9 @@ export default function RootLayout({
   return (
     <html lang="fr" className={inter.variable}>
       <body className={`${inter.className} antialiased`}>
+        <Script id="openai-pixel" strategy="beforeInteractive">
+          {`!function(w,d,s,u){if(w.oaiq)return;var q=function(){q.q.push(arguments)};q.q=[];w.oaiq=q;var j=d.createElement(s);j.async=1;j.src=u;var f=d.getElementsByTagName(s)[0];f.parentNode.insertBefore(j,f)}(window,document,"script","https://bzrcdn.openai.com/sdk/oaiq.min.js");oaiq("init",{pixelId:"HmLqosFboZSUPnPKUJWyg6",debug:true});`}
+        </Script>
         <a className="skip-link" href="#contenu">
           Aller au contenu
         </a>
@@ -40,9 +43,6 @@ export default function RootLayout({
         <p className="sr-only">
           {AGENCY.name}, {AGENCY.street}, {AGENCY.zip} {AGENCY.city}
         </p>
-        <Script id="openai-pixel" strategy="afterInteractive">
-          {`!function(w,d,s,u){if(w.oaiq)return;var q=function(){q.q.push(arguments)};q.q=[];w.oaiq=q;var j=d.createElement(s);j.async=1;j.src=u;var f=d.getElementsByTagName(s)[0];f.parentNode.insertBefore(j,f)}(window,document,"script","https://bzrcdn.openai.com/sdk/oaiq.min.js");oaiq("init",{pixelId:"FYApvSLF4tuNCav5rJ3tZd",debug:true});`}
-        </Script>
         <Analytics />
       </body>
     </html>
