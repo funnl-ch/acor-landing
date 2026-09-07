@@ -1,44 +1,44 @@
 const STEPS = [
   {
-    title: "Un appel, sous 48 heures",
-    text: "Un courtier vous appelle pour comprendre votre bien et votre situation. Dix minutes, pas plus.",
+    title: "Une demande, en quelques minutes",
+    text: "Vous décrivez votre bien : type, commune, surfaces, état. Quelques minutes suffisent.",
   },
   {
-    title: "Une visite, quand ça vous arrange",
-    text: "Il se déplace, mesure, photographie, et relève ce qu’aucun simulateur ne voit : l’étage, la vue, l’état réel, le terrain.",
+    title: "Un accompagnement personnalisé",
+    text: "Un courtier vous accompagne ensuite pour vendre votre bien au meilleur prix.",
   },
   {
-    title: "Un prix écrit, à garder",
-    text: "Vous recevez l’estimation par écrit, avec les comparables qui la justifient. Ce que vous en faites ne regarde que vous.",
+    title: "Sans engagement",
+    text: "Le processus est rapide et ne vous engage à rien. Demander une estimation n’oblige pas à vendre.",
   },
 ] as const;
 
 export function NextSteps() {
   return (
     <section className="bg-page" aria-labelledby="suite-title">
-      <div className="mx-auto max-w-5xl px-5 py-16 sm:px-8 sm:py-20">
+      <div className="mx-auto max-w-[900px] px-5 py-16 sm:px-8 sm:py-24">
         <h2
           id="suite-title"
-          className="text-left text-[20px] font-bold leading-snug text-ink"
+          className="text-[20px] font-bold leading-snug text-ink sm:text-[22px]"
         >
           Ce qui se passe après votre demande
         </h2>
-        <ol className="mt-10 grid items-stretch gap-4 sm:grid-cols-3 sm:gap-5">
+        <ol className="mt-8">
           {STEPS.map((step, index) => (
             <li
               key={step.title}
-              className="rounded-[12px] border-[0.5px] border-[#ececec] bg-page p-6"
+              className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 border-[#ececec] py-6 sm:gap-x-5 sm:py-7 [&:not(:last-child)]:border-b"
             >
               <span
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-brand text-[15px] font-medium text-white"
+                className="pt-[3px] text-[15px] font-medium tabular-nums leading-none text-muted"
                 aria-hidden="true"
               >
                 {index + 1}
               </span>
-              <h3 className="mt-4 text-[17px] font-semibold leading-snug text-ink">
+              <h3 className="text-[18px] font-semibold leading-snug tracking-[-0.02em] text-ink sm:text-[20px]">
                 {step.title}
               </h3>
-              <p className="mt-2 text-[17px] font-normal leading-[1.5] text-muted">
+              <p className="col-start-2 text-[17px] font-normal leading-[1.5] text-muted">
                 {step.text}
               </p>
             </li>

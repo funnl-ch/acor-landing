@@ -58,6 +58,7 @@ export const leadSchema = z.object({
   utmContent: optionalText,
   gclid: optionalText,
   referrer: optionalText,
+  eventId: z.preprocess(emptyToUndefined, z.string().uuid().optional()),
 });
 
 export type LeadPayload = z.infer<typeof leadSchema>;

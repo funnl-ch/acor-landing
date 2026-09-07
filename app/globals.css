@@ -535,6 +535,10 @@
     scroll-padding-left: 1rem;
   }
 
+  .reviews-scroller.is-autoplaying {
+    scroll-snap-type: none;
+  }
+
   .reviews-scroller::-webkit-scrollbar {
     display: none;
   }

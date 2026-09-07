@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useLayoutEffect, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import { GoogleRating } from "@/components/GoogleRating";
 
 // Versions abrégées des avis Google : le texte doit tenir en entier dans la
@@ -53,40 +53,44 @@ function setWidth(scroller: HTMLElement) {
   return cards[REVIEWS.length].offsetLeft - cards[0].offsetLeft;
 }
 
-function jumpScroll(scroller: HTMLElement, left: number) {
-  scroller.style.scrollSnapType = "none";
-  scroller.scrollLeft = left;
-  scroller.style.scrollSnapType = "";
-}
-
 export function GoogleReviews() {
+  const sectionRef = useRef<HTMLElement>(null);
   const scrollerRef = useRef<HTMLUListElement>(null);
   const jumpingRef = useRef(false);
+  const touchingRef = useRef(false);
+  const autoplayingRef = useRef(false);
+  const loopWidthRef = useRef(0);
+
+  const jump = useCallback((el: HTMLElement, left: number) => {
+    jumpingRef.current = true;
+    if (!autoplayingRef.current) el.style.scrollSnapType = "none";
+    el.scrollLeft = left;
+    if (!autoplayingRef.current) el.style.scrollSnapType = "";
+    jumpingRef.current = false;
+  }, []);
 
   const keepLoop = useCallback(() => {
     const el = scrollerRef.current;
     if (!el || jumpingRef.current) return;
     const width = setWidth(el);
     if (!width) return;
+    loopWidthRef.current = width;
 
     if (el.scrollLeft < width) {
-      jumpingRef.current = true;
-      jumpScroll(el, el.scrollLeft + width);
-      jumpingRef.current = false;
+      jump(el, el.scrollLeft + width);
     } else if (el.scrollLeft >= width * 2) {
-      jumpingRef.current = true;
-      jumpScroll(el, el.scrollLeft - width);
-      jumpingRef.current = false;
+      jump(el, el.scrollLeft - width);
     }
-  }, []);
+  }, [jump]);
 
   const goToMiddle = useCallback(() => {
     const el = scrollerRef.current;
     if (!el) return;
     const width = setWidth(el);
     if (!width) return;
-    jumpScroll(el, width + (el.scrollLeft % width));
-  }, []);
+    loopWidthRef.current = width;
+    jump(el, width + (el.scrollLeft % width));
+  }, [jump]);
 
   useLayoutEffect(() => {
     const el = scrollerRef.current;
@@ -95,7 +99,12 @@ export function GoogleReviews() {
     goToMiddle();
     el.addEventListener("scroll", keepLoop, { passive: true });
     window.addEventListener("resize", goToMiddle);
-    const observer = new ResizeObserver(goToMiddle);
+
+    const observer = new ResizeObserver(() => {
+      const next = setWidth(el);
+      if (!next || next === loopWidthRef.current) return;
+      goToMiddle();
+    });
     observer.observe(el);
 
     return () => {
@@ -104,6 +113,68 @@ export function GoogleReviews() {
       observer.disconnect();
     };
   }, [goToMiddle, keepLoop]);
+
+  useEffect(() => {
+    const el = scrollerRef.current;
+    const section = sectionRef.current;
+    if (!el || !section || prefersReducedMotion()) return;
+
+    const PX_PER_MS = 0.035;
+    const hoverPointer = window.matchMedia("(hover: hover) and (pointer: fine)");
+    let last = performance.now();
+    let hovering = false;
+
+    const setSnapOff = () => {
+      autoplayingRef.current = true;
+      el.classList.add("is-autoplaying");
+    };
+
+    const onPointerEnter = (event: globalThis.PointerEvent) => {
+      if (event.pointerType === "mouse") hovering = true;
+    };
+    const onPointerLeave = (event: globalThis.PointerEvent) => {
+      if (event.pointerType === "mouse") hovering = false;
+      touchingRef.current = false;
+    };
+    const onPointerDown = (event: globalThis.PointerEvent) => {
+      if (event.pointerType === "mouse") return;
+      touchingRef.current = true;
+    };
+    const onPointerUp = () => {
+      touchingRef.current = false;
+    };
+
+    section.addEventListener("pointerenter", onPointerEnter);
+    section.addEventListener("pointerleave", onPointerLeave);
+    section.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("pointerup", onPointerUp);
+    window.addEventListener("pointercancel", onPointerUp);
+
+    const tick = () => {
+      const now = performance.now();
+      const hovered = hovering || (hoverPointer.matches && section.matches(":hover"));
+      const paused =
+        hovered || touchingRef.current || document.visibilityState === "hidden";
+      const delta = Math.min(now - last, 48);
+      last = now;
+
+      if (!paused) el.scrollLeft += PX_PER_MS * delta;
+    };
+
+    setSnapOff();
+    const timer = window.setInterval(tick, 16);
+
+    return () => {
+      window.clearInterval(timer);
+      autoplayingRef.current = false;
+      el.classList.remove("is-autoplaying");
+      section.removeEventListener("pointerenter", onPointerEnter);
+      section.removeEventListener("pointerleave", onPointerLeave);
+      section.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("pointerup", onPointerUp);
+      window.removeEventListener("pointercancel", onPointerUp);
+    };
+  }, []);
 
   function scrollByCard(direction: -1 | 1) {
     const el = scrollerRef.current;
@@ -117,7 +188,7 @@ export function GoogleReviews() {
   }
 
   return (
-    <section className="bg-page" aria-label="Avis Google">
+    <section ref={sectionRef} className="bg-page" aria-label="Avis Google">
       <div className="mx-auto flex max-w-5xl items-center justify-center px-5 pt-8 sm:px-8 md:justify-between">
         <GoogleRating className="mt-0" />
         <div className="hidden items-center md:flex">

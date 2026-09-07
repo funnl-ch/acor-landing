@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
 
@@ -10,11 +10,11 @@ type HeroVideoProps = {
 };
 
 /**
- * Fond décoratif. Monté côté client uniquement : le formulaire se rend sans
- * attendre la vidéo. En reduced-motion rien n'est chargé, l'image de repli
- * placée sous cette couche suffit alors.
+ * Fond décoratif, monté côté client. En reduced-motion, l'image de repli
+ * sous cette couche suffit : rien n'est chargé.
  */
 export function HeroVideo({ src, poster }: HeroVideoProps) {
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
@@ -26,10 +26,33 @@ export function HeroVideo({ src, poster }: HeroVideoProps) {
     return () => reduced.removeEventListener("change", sync);
   }, []);
 
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !enabled) return;
+
+    video.muted = true;
+    video.defaultMuted = true;
+    video.playsInline = true;
+
+    const tryPlay = () => {
+      const attempt = video.play();
+      if (attempt) void attempt.catch(() => {});
+    };
+
+    tryPlay();
+    video.addEventListener("canplay", tryPlay);
+    video.addEventListener("loadeddata", tryPlay);
+    return () => {
+      video.removeEventListener("canplay", tryPlay);
+      video.removeEventListener("loadeddata", tryPlay);
+    };
+  }, [enabled]);
+
   if (!enabled) return null;
 
   return (
     <video
+      ref={videoRef}
       className="pointer-events-none absolute inset-0 h-full w-full object-cover"
       src={src}
       poster={poster}
@@ -37,7 +60,7 @@ export function HeroVideo({ src, poster }: HeroVideoProps) {
       muted
       loop
       playsInline
-      preload="metadata"
+      preload="auto"
       tabIndex={-1}
       aria-hidden="true"
     />

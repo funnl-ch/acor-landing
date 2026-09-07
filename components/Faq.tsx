@@ -5,19 +5,19 @@ import { nbsp } from "@/lib/typography";
 
 const QUESTIONS = [
   {
-    question: "L’estimation est-elle vraiment gratuite ?",
+    question: "Est-ce sans engagement ?",
     answer:
-      "Oui. Le déplacement du courtier, le relevé sur place et l’estimation écrite ne vous coûtent rien, et ne vous engagent à rien. ACOR n’est rémunérée que si vous lui confiez la vente et qu’elle aboutit.",
+      "Oui. Le processus est rapide et sans engagement. Demander une estimation ne vous oblige pas à vendre avec nous.",
   },
   {
     question: "Combien de temps cela prend-il ?",
     answer:
-      "Un courtier vous appelle sous 48 heures ouvrables pour convenir d’un rendez-vous. La visite dure généralement moins d’une heure. Vous recevez l’estimation écrite dans les jours qui suivent.",
+      "La demande se fait en quelques minutes. Un courtier vous recontacte ensuite pour l’accompagnement personnalisé.",
   },
   {
-    question: "Suis-je obligé de vendre avec ACOR ensuite ?",
+    question: "Qui s’occupe de l’estimation ?",
     answer:
-      "Non. L’estimation vous appartient, vous en faites ce que vous voulez. Aucun mandat n’est demandé lors de la visite, et personne ne vous rappellera pour insister.",
+      "Nos courtiers, dont des experts en estimation immobilière au brevet fédéral. Ils vous accompagnent pour vendre au meilleur prix.",
   },
 ] as const;
 

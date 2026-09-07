@@ -12,7 +12,7 @@ import {
 import { GoogleRating } from "@/components/GoogleRating";
 import { PropertyTypeIcon } from "@/components/PropertyTypeIcon";
 import { filterCommunes } from "@/lib/communes";
-import { trackLead } from "@/lib/oaiq";
+import { setOaiUser, trackEvent } from "@/lib/oai";
 import { nbsp } from "@/lib/typography";
 import {
   AGENCY,
@@ -123,7 +123,7 @@ function optionalString(value: string): string | undefined {
   return trimmed || undefined;
 }
 
-function toLeadBody(data: FormState) {
+function toLeadBody(data: FormState, eventId: string) {
   return {
     typeBien: data.propertyType,
     commune: data.commune.trim(),
@@ -144,6 +144,7 @@ function toLeadBody(data: FormState) {
     utmContent: optionalString(data.utm_content),
     gclid: optionalString(data.gclid),
     referrer: optionalString(data.referrer),
+    eventId,
   };
 }
 
@@ -237,10 +238,18 @@ export function LeadForm() {
     setError("");
 
     try {
+      const eventId = crypto.randomUUID();
+      await setOaiUser({
+        email: data.email,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        phone: data.phone,
+      });
+
       const response = await fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(toLeadBody(data)),
+        body: JSON.stringify(toLeadBody(data, eventId)),
       });
       const result = (await response.json()) as { ok?: boolean; error?: string };
 
@@ -251,7 +260,11 @@ export function LeadForm() {
 
       if (!leadTrackedRef.current) {
         leadTrackedRef.current = true;
-        trackLead();
+        trackEvent(
+          "lead_created",
+          { type: "customer_action" },
+          { event_id: eventId },
+        );
       }
 
       setSubmitted(true);
