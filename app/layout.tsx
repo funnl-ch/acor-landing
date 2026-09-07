@@ -14,6 +14,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://acor-landing.vercel.app"),
   title: "Combien vaut votre bien en Valais\u00A0? | ACOR Immobilier",
   description:
     "Un courtier ACOR se déplace et vous remet une estimation écrite, gratuite et sans engagement. Agence à Sion, Valais.",
