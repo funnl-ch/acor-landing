@@ -14,6 +14,10 @@ export const ETAT_BIEN = [
   "bon",
   "rafraichir",
   "renover",
+  "constructible",
+  "viabilise",
+  "agricole",
+  "inconnu",
 ] as const;
 
 export const ECHEANCE = ["asap", "6mois", "1an", "renseigne"] as const;

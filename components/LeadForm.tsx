@@ -16,10 +16,12 @@ import { setOaiUser, trackEvent } from "@/lib/oai";
 import { nbsp } from "@/lib/typography";
 import {
   AGENCY,
-  CONDITIONS,
   PROPERTY_TYPES,
   TIMELINES,
+  conditionsFor,
   showsLandArea,
+  showsLivingArea,
+  showsRooms,
   type Condition,
   type PropertyType,
   type Timeline,
@@ -28,14 +30,27 @@ import {
 const TOTAL_STEPS = 6;
 const AUTO_ADVANCE_STEPS = new Set([1, 4, 5]);
 
-const STEP_TITLES = [
-  "Quel type de bien souhaitez-vous estimer ?",
-  "Dans quelle commune se trouve le bien ?",
-  "Quel est le volume et la surface ?",
-  "Dans quel état est le bien ?",
-  "Quand souhaitez-vous vendre ?",
-  "Où un courtier peut-il vous joindre ?",
-].map(nbsp);
+function stepTitle(step: number, type: PropertyType | ""): string {
+  const titles = [
+    "Quel type de bien souhaitez-vous estimer ?",
+    type === "terrain"
+      ? "Dans quelle commune se trouve le terrain ?"
+      : "Dans quelle commune se trouve le bien ?",
+    type === "terrain"
+      ? "Quelle est la surface du terrain ?"
+      : type === "immeuble"
+        ? "Combien d’appartements, et quelle surface ?"
+        : "Quel est le volume et la surface ?",
+    type === "terrain"
+      ? "Le terrain est-il constructible ?"
+      : type === "immeuble"
+        ? "Dans quel état est l’immeuble ?"
+        : "Dans quel état est le bien ?",
+    "Quand souhaitez-vous vendre ?",
+    "Où un courtier peut-il vous joindre ?",
+  ];
+  return nbsp(titles[step - 1] ?? "");
+}
 
 type FormState = {
   propertyType: PropertyType | "";
@@ -88,6 +103,9 @@ function canContinue(step: number, data: FormState): boolean {
     case 2:
       return data.commune.trim().length >= 2;
     case 3:
+      if (data.propertyType === "terrain") {
+        return data.landArea.trim() !== "";
+      }
       return (
         data.livingArea.trim() !== "" ||
         data.landArea.trim() !== "" ||
@@ -307,8 +325,11 @@ export function LeadForm() {
   const progress = submitted ? 100 : (step / TOTAL_STEPS) * 100;
   const liveMessage = submitted
     ? "Demande enregistrée."
-    : `${step} / ${TOTAL_STEPS}. ${STEP_TITLES[step - 1]}`;
+    : `${step} / ${TOTAL_STEPS}. ${stepTitle(step, data.propertyType)}`;
   const showLand = showsLandArea(data.propertyType);
+  const showRooms = showsRooms(data.propertyType);
+  const showLiving = showsLivingArea(data.propertyType);
+  const conditionChoices = conditionsFor(data.propertyType);
   const showNext = !AUTO_ADVANCE_STEPS.has(step) && step < TOTAL_STEPS;
 
   const cardClass = "flex flex-col text-left";
@@ -380,7 +401,7 @@ export function LeadForm() {
             tabIndex={-1}
             className="form-on-video min-h-[3.8rem] text-balance text-[22px] font-extrabold leading-snug tracking-[-0.03em] text-white sm:min-h-0"
           >
-            {STEP_TITLES[step - 1]}
+            {stepTitle(step, data.propertyType)}
           </h2>
 
           {/* Hauteur calée sur les étapes 1 à 5 : sans elle, chaque changement
@@ -422,9 +443,14 @@ export function LeadForm() {
                           setData((current) => ({
                             ...current,
                             propertyType: item.value,
+                            rooms: showsRooms(item.value) ? current.rooms : "",
+                            livingArea: showsLivingArea(item.value)
+                              ? current.livingArea
+                              : "",
                             landArea: showsLandArea(item.value)
                               ? current.landArea
                               : "",
+                            condition: "",
                           }));
                           setError("");
                         });
@@ -501,44 +527,66 @@ export function LeadForm() {
 
               {step === 3 && (
                 <div className="grid gap-5">
-                  <div>
-                    <label htmlFor="lead-first-field" className="field-label">
-                      Nombre de pièces
-                    </label>
-                    <input
-                      id="lead-first-field"
-                      className="field-input"
-                      inputMode="decimal"
-                      value={data.rooms}
-                      onChange={(event) =>
-                        update("rooms", event.target.value.replace(/[^\d.,]/g, ""))
-                      }
-                      placeholder="Ex. 4.5"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="livingArea" className="field-label">
-                      Surface habitable (m²)
-                    </label>
-                    <input
-                      id="livingArea"
-                      className="field-input"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      value={data.livingArea}
-                      onChange={(event) =>
-                        update("livingArea", event.target.value.replace(/[^\d]/g, ""))
-                      }
-                      placeholder="Ex. 120"
-                    />
-                  </div>
+                  {showRooms && (
+                    <div>
+                      <label htmlFor="lead-first-field" className="field-label">
+                        {data.propertyType === "immeuble"
+                          ? "Nombre d’appartements"
+                          : "Nombre de pièces"}
+                      </label>
+                      <input
+                        id="lead-first-field"
+                        className="field-input"
+                        inputMode="decimal"
+                        value={data.rooms}
+                        onChange={(event) =>
+                          update("rooms", event.target.value.replace(/[^\d.,]/g, ""))
+                        }
+                        placeholder={
+                          data.propertyType === "immeuble" ? "Ex. 8" : "Ex. 4.5"
+                        }
+                      />
+                    </div>
+                  )}
+                  {showLiving && (
+                    <div>
+                      <label
+                        htmlFor={showRooms ? "livingArea" : "lead-first-field"}
+                        className="field-label"
+                      >
+                        {data.propertyType === "immeuble"
+                          ? "Surface habitable totale (m²)"
+                          : data.propertyType === "local"
+                            ? "Surface (m²)"
+                            : "Surface habitable (m²)"}
+                      </label>
+                      <input
+                        id={showRooms ? "livingArea" : "lead-first-field"}
+                        className="field-input"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        value={data.livingArea}
+                        onChange={(event) =>
+                          update("livingArea", event.target.value.replace(/[^\d]/g, ""))
+                        }
+                        placeholder="Ex. 120"
+                      />
+                    </div>
+                  )}
                   {showLand && (
                     <div>
-                      <label htmlFor="landArea" className="field-label">
+                      <label
+                        htmlFor={
+                          showRooms || showLiving ? "landArea" : "lead-first-field"
+                        }
+                        className="field-label"
+                      >
                         Surface du terrain (m²)
                       </label>
                       <input
-                        id="landArea"
+                        id={
+                          showRooms || showLiving ? "landArea" : "lead-first-field"
+                        }
                         className="field-input"
                         inputMode="numeric"
                         pattern="[0-9]*"
@@ -550,13 +598,23 @@ export function LeadForm() {
                       />
                     </div>
                   )}
-                  <p className="text-white/80">Un des champs suffit.</p>
+                  {data.propertyType !== "terrain" && (
+                    <p className="text-white/80">Un des champs suffit.</p>
+                  )}
                 </div>
               )}
 
               {step === 4 && (
-                <div className="grid gap-2.5" role="group" aria-label="État du bien">
-                  {CONDITIONS.map((item, index) => (
+                <div
+                  className="grid gap-2.5"
+                  role="group"
+                  aria-label={
+                    data.propertyType === "terrain"
+                      ? "Statut du terrain"
+                      : "État du bien"
+                  }
+                >
+                  {conditionChoices.map((item, index) => (
                     <button
                       key={item.value}
                       id={index === 0 ? "lead-first-field" : undefined}

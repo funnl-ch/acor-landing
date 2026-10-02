@@ -15,6 +15,10 @@ const ETAT_LABELS: Record<LeadPayload["etat"], string> = {
   bon: "Bon état",
   rafraichir: "À rafraîchir",
   renover: "À rénover entièrement",
+  constructible: "Constructible",
+  viabilise: "Viabilisé",
+  agricole: "Agricole",
+  inconnu: "Je ne sais pas",
 };
 
 const ECHEANCE_LABELS: Record<LeadPayload["echeance"], string> = {
@@ -75,14 +79,18 @@ export function buildLeadEmail(lead: LeadPayload): {
     `Type : ${typeLabel}`,
     `Commune : ${lead.commune}`,
     lead.adresseBien ? `Adresse : ${lead.adresseBien}` : undefined,
-    lead.pieces !== undefined ? `Pièces : ${lead.pieces}` : undefined,
+    lead.pieces !== undefined
+      ? lead.typeBien === "immeuble"
+        ? `Appartements : ${lead.pieces}`
+        : `Pièces : ${lead.pieces}`
+      : undefined,
     lead.surfaceHabitable !== undefined
       ? `Surface habitable : ${lead.surfaceHabitable} m²`
       : undefined,
     lead.surfaceTerrain !== undefined
       ? `Surface terrain : ${lead.surfaceTerrain} m²`
       : undefined,
-    `État : ${ETAT_LABELS[lead.etat]}`,
+    `${lead.typeBien === "terrain" ? "Statut" : "État"} : ${ETAT_LABELS[lead.etat]}`,
   ].filter((line): line is string => Boolean(line));
 
   const provenance = provenanceLine(lead);

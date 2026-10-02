@@ -32,6 +32,13 @@ export const CONDITIONS = [
   { value: "renover", label: "À rénover entièrement" },
 ] as const;
 
+export const LAND_CONDITIONS = [
+  { value: "constructible", label: "Constructible" },
+  { value: "viabilise", label: "Viabilisé" },
+  { value: "agricole", label: "Agricole" },
+  { value: "inconnu", label: "Je ne sais pas" },
+] as const;
+
 export const TIMELINES = [
   { value: "asap", label: "Dès que possible" },
   { value: "6mois", label: "Dans les 6 mois" },
@@ -40,9 +47,26 @@ export const TIMELINES = [
 ] as const;
 
 export type PropertyType = (typeof PROPERTY_TYPES)[number]["value"];
-export type Condition = (typeof CONDITIONS)[number]["value"];
+export type BuildingCondition = (typeof CONDITIONS)[number]["value"];
+export type LandCondition = (typeof LAND_CONDITIONS)[number]["value"];
+export type Condition = BuildingCondition | LandCondition;
 export type Timeline = (typeof TIMELINES)[number]["value"];
+
+export function showsRooms(type: PropertyType | ""): boolean {
+  return type === "appartement" || type === "maison" || type === "immeuble";
+}
+
+export function showsLivingArea(type: PropertyType | ""): boolean {
+  return type !== "terrain";
+}
 
 export function showsLandArea(type: PropertyType | ""): boolean {
   return type === "maison" || type === "terrain" || type === "immeuble";
+}
+
+export function conditionsFor(type: PropertyType | ""): readonly {
+  value: Condition;
+  label: string;
+}[] {
+  return type === "terrain" ? LAND_CONDITIONS : CONDITIONS;
 }
