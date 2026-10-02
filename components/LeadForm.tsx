@@ -290,7 +290,7 @@ export function LeadForm() {
       if (!leadTrackedRef.current) {
         leadTrackedRef.current = true;
         trackEvent(
-          "lead_created",
+          "registration_completed",
           { type: "customer_action" },
           { event_id: eventId },
         );

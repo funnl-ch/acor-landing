@@ -45,7 +45,7 @@ export async function sendOaiLeadEvent(
 
   const event: Record<string, unknown> = {
     id: lead.eventId,
-    type: "lead_created",
+    type: "registration_completed",
     timestamp_ms: Date.now(),
     action_source: "web",
     source_url: lead.sourceUrl || "https://acor-landing.vercel.app/",
