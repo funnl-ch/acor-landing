@@ -53,7 +53,7 @@ export function HeroVideo({ src, poster }: HeroVideoProps) {
   return (
     <video
       ref={videoRef}
-      className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+      className="hero-bg-video"
       src={src}
       poster={poster}
       autoPlay

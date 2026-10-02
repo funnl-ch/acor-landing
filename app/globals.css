@@ -295,6 +295,27 @@
   }
 
 
+  /*
+    Cover iOS-proof : Tailwind impose max-width:100% / height:auto sur <video>.
+    Cadré plus bas sur mobile — la pièce 16:9 est trop coupée au plafond en portrait.
+  */
+  .hero-bg-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    object-position: center 72%;
+    pointer-events: none;
+  }
+
+  @media (min-width: 768px) {
+    .hero-bg-video {
+      object-position: center;
+    }
+  }
+
   .hero-copy {
     text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
   }

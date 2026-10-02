@@ -46,7 +46,7 @@ export function Hero({ title, underlined, subtitle }: HeroProps) {
           priority
           quality={85}
           sizes="(max-width: 1920px) 100vw, 1920px"
-          className="object-cover"
+          className="object-cover object-[center_72%] md:object-center"
         />
         <HeroVideo src={HERO_VIDEO_SRC} poster={HERO_IMAGE_SRC} />
       </div>
