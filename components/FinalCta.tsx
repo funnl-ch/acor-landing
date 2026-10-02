@@ -1,6 +1,7 @@
 "use client";
 
 import { AGENCY } from "@/lib/constants";
+import { trackCustomEvent } from "@/lib/oai";
 import { scrollToLeadForm } from "@/lib/scroll-to-form";
 
 export function FinalCta() {
@@ -31,6 +32,7 @@ export function FinalCta() {
               Ou appelez directement le{" "}
               <a
                 href={AGENCY.phoneHref}
+                onClick={() => trackCustomEvent("phone_click")}
                 className="whitespace-nowrap text-white underline underline-offset-4"
               >
                 {AGENCY.phoneDisplay}

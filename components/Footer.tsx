@@ -4,6 +4,7 @@ import { Fragment } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AGENCY, FUNNL } from "@/lib/constants";
+import { trackCustomEvent } from "@/lib/oai";
 import { scrollToLeadForm } from "@/lib/scroll-to-form";
 import { Logo } from "./Logo";
 import { PhoneIcon } from "./PhoneLink";
@@ -43,7 +44,11 @@ export function Footer() {
           </div>
 
           <div className="flex flex-col items-start">
-            <a href={AGENCY.phoneHref} className="footer-contact">
+            <a
+              href={AGENCY.phoneHref}
+              className="footer-contact"
+              onClick={() => trackCustomEvent("phone_click")}
+            >
               <PhoneIcon className="h-5 w-5 shrink-0" />
               <span>{AGENCY.phoneDisplay}</span>
             </a>

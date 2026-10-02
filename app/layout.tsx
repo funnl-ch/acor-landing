@@ -4,7 +4,9 @@ import { Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { Footer } from "@/components/Footer";
+import { OaiPageView } from "@/components/OaiPageView";
 import { AGENCY } from "@/lib/constants";
+import { OAI_PIXEL_ID } from "@/lib/oai-hash";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -34,8 +36,9 @@ export default function RootLayout({
     <html lang="fr" className={inter.variable}>
       <body className={`${inter.className} antialiased`}>
         <Script id="openai-pixel" strategy="beforeInteractive">
-          {`!function(w,d,s,u){if(w.oaiq)return;var q=function(){q.q.push(arguments)};q.q=[];w.oaiq=q;var j=d.createElement(s);j.async=1;j.src=u;var f=d.getElementsByTagName(s)[0];f.parentNode.insertBefore(j,f)}(window,document,"script","https://bzrcdn.openai.com/sdk/oaiq.min.js");oaiq("init",{pixelId:"HmLqosFboZSUPnPKUJWyg6",debug:true});`}
+          {`!function(w,d,s,u){if(w.oaiq)return;var q=function(){q.q.push(arguments)};q.q=[];w.oaiq=q;var j=d.createElement(s);j.async=1;j.src=u;var f=d.getElementsByTagName(s)[0];f.parentNode.insertBefore(j,f)}(window,document,"script","https://bzrcdn.openai.com/sdk/oaiq.min.js");oaiq("init",${JSON.stringify({ pixelId: OAI_PIXEL_ID, ...(process.env.NODE_ENV !== "production" ? { debug: true } : {}) })});`}
         </Script>
+        <OaiPageView />
         <a className="skip-link" href="#contenu">
           Aller au contenu
         </a>

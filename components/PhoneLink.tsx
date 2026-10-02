@@ -1,4 +1,7 @@
+"use client";
+
 import { AGENCY } from "@/lib/constants";
+import { trackCustomEvent } from "@/lib/oai";
 
 type PhoneLinkProps = {
   className?: string;
@@ -34,6 +37,7 @@ export function PhoneLink({
   return (
     <a
       href={AGENCY.phoneHref}
+      onClick={() => trackCustomEvent("phone_click")}
       className={
         button
           ? `btn-header-phone ${className}`

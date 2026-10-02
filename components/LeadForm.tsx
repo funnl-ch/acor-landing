@@ -12,7 +12,12 @@ import {
 import { GoogleRating } from "@/components/GoogleRating";
 import { PropertyTypeIcon } from "@/components/PropertyTypeIcon";
 import { filterCommunes } from "@/lib/communes";
-import { setOaiUser, trackEvent } from "@/lib/oai";
+import {
+  getOaiAttribution,
+  setOaiUser,
+  trackContentsViewed,
+  trackEvent,
+} from "@/lib/oai";
 import { nbsp } from "@/lib/typography";
 import {
   AGENCY,
@@ -142,6 +147,7 @@ function optionalString(value: string): string | undefined {
 }
 
 function toLeadBody(data: FormState, eventId: string) {
+  const attribution = getOaiAttribution();
   return {
     typeBien: data.propertyType,
     commune: data.commune.trim(),
@@ -163,6 +169,10 @@ function toLeadBody(data: FormState, eventId: string) {
     gclid: optionalString(data.gclid),
     referrer: optionalString(data.referrer),
     eventId,
+    oppref: optionalString(attribution.oppref ?? ""),
+    obref: optionalString(attribution.obref ?? ""),
+    externalId: optionalString(attribution.externalId),
+    sourceUrl: optionalString(attribution.sourceUrl),
   };
 }
 
@@ -262,6 +272,7 @@ export function LeadForm() {
         firstName: data.firstName,
         lastName: data.lastName,
         phone: data.phone,
+        city: data.commune,
       });
 
       const response = await fetch("/api/lead", {
@@ -439,6 +450,7 @@ export function LeadForm() {
                       className="choice-btn"
                       aria-pressed={data.propertyType === item.value}
                       onClick={() => {
+                        trackContentsViewed(item.value, item.label);
                         autoAdvance(() => {
                           setData((current) => ({
                             ...current,

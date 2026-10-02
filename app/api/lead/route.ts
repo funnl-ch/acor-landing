@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { leadSchema, zodFieldErrors } from "@/lib/lead-schema";
 import { sendLeadEmail } from "@/lib/mail";
+import { sendOaiLeadEvent } from "@/lib/oai-capi";
 
 export const runtime = "nodejs";
 
@@ -88,7 +89,10 @@ export async function POST(request: Request) {
     console.error("LEAD_FAILED", JSON.stringify(parsed.data));
   }
 
-  // TODO: appel serveur à l’API Conversions OpenAI — identifiants non disponibles.
+  await sendOaiLeadEvent(parsed.data, {
+    ip: clientIp(request),
+    userAgent: request.headers.get("user-agent") ?? "",
+  });
 
   return NextResponse.json({ ok: true });
 }
