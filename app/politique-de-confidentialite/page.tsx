@@ -78,6 +78,12 @@ export default function PrivacyPage() {
         cette collecte en utilisant un bloqueur de traceurs ou les réglages de
         confidentialité de votre navigateur.
       </p>
+      <p>
+        Ce site utilise aussi Microsoft Clarity, qui enregistre des sessions de
+        navigation (pages vues, clics, défilement) afin d’améliorer le site. Le
+        service est exploité par Microsoft, dont les serveurs se situent hors de
+        Suisse.
+      </p>
 
       <h2>Durée de conservation</h2>
       <p>

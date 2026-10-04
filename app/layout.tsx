@@ -38,6 +38,9 @@ export default function RootLayout({
         <Script id="openai-pixel" strategy="beforeInteractive">
           {`!function(w,d,s,u){if(w.oaiq)return;var q=function(){q.q.push(arguments)};q.q=[];w.oaiq=q;var j=d.createElement(s);j.async=1;j.src=u;var f=d.getElementsByTagName(s)[0];f.parentNode.insertBefore(j,f)}(window,document,"script","https://bzrcdn.openai.com/sdk/oaiq.min.js");oaiq("init",${JSON.stringify({ pixelId: OAI_PIXEL_ID, ...(process.env.NODE_ENV !== "production" ? { debug: true } : {}) })});`}
         </Script>
+        <Script id="microsoft-clarity" strategy="afterInteractive">
+          {`(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script","ysn6d1qrfs");`}
+        </Script>
         <OaiPageView />
         <a className="skip-link" href="#contenu">
           Aller au contenu
