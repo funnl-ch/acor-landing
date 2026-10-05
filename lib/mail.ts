@@ -95,6 +95,12 @@ export function buildLeadEmail(lead: LeadPayload): {
 
   const provenance = provenanceLine(lead);
   const recu = `Reçu le ${receivedAt()}`;
+  const abLine =
+    lead.abVariant === "short"
+      ? "A/B : contact allégé"
+      : lead.abVariant === "control"
+        ? "A/B : formulaire actuel"
+        : undefined;
 
   const text = [
     "CONTACT",
@@ -105,6 +111,7 @@ export function buildLeadEmail(lead: LeadPayload): {
     "",
     "PROVENANCE",
     provenance,
+    abLine,
     recu,
   ]
     .filter((line) => line !== undefined)
@@ -120,6 +127,7 @@ export function buildLeadEmail(lead: LeadPayload): {
   const htmlBien = bienLines.map((line) => escapeHtml(line)).join("<br>");
   const htmlProvenance = [
     provenance ? escapeHtml(provenance) : undefined,
+    abLine ? escapeHtml(abLine) : undefined,
     escapeHtml(recu),
   ]
     .filter((line): line is string => Boolean(line))

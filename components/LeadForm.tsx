@@ -11,6 +11,7 @@ import {
 } from "react";
 import { GoogleRating } from "@/components/GoogleRating";
 import { PropertyTypeIcon } from "@/components/PropertyTypeIcon";
+import { getOrAssignAbVariant, type AbVariant } from "@/lib/ab";
 import { filterCommunes } from "@/lib/communes";
 import {
   getOaiAttribution,
@@ -35,7 +36,11 @@ import {
 const TOTAL_STEPS = 6;
 const AUTO_ADVANCE_STEPS = new Set([1, 4, 5]);
 
-function stepTitle(step: number, type: PropertyType | ""): string {
+function stepTitle(
+  step: number,
+  type: PropertyType | "",
+  variant: AbVariant = "control",
+): string {
   const titles = [
     "Quel type de bien souhaitez-vous estimer ?",
     type === "terrain"
@@ -52,7 +57,9 @@ function stepTitle(step: number, type: PropertyType | ""): string {
         ? "Dans quel état est l’immeuble ?"
         : "Dans quel état est le bien ?",
     "Quand souhaitez-vous vendre ?",
-    "Où un courtier peut-il vous joindre ?",
+    variant === "short"
+      ? "Un courtier vous rappelle. Où vous joindre ?"
+      : "Où un courtier peut-il vous joindre ?",
   ];
   return nbsp(titles[step - 1] ?? "");
 }
@@ -101,7 +108,11 @@ const initialState: FormState = {
   referrer: "",
 };
 
-function canContinue(step: number, data: FormState): boolean {
+function canContinue(
+  step: number,
+  data: FormState,
+  variant: AbVariant = "control",
+): boolean {
   switch (step) {
     case 1:
       return data.propertyType !== "";
@@ -120,15 +131,16 @@ function canContinue(step: number, data: FormState): boolean {
       return data.condition !== "";
     case 5:
       return data.timeline !== "";
-    case 6:
-      return (
+    case 6: {
+      const contact =
         data.firstName.trim() !== "" &&
         data.lastName.trim() !== "" &&
         data.email.trim() !== "" &&
         data.phone.trim() !== "" &&
-        data.address.trim() !== "" &&
-        data.consent
-      );
+        data.consent;
+      if (variant === "short") return contact;
+      return contact && data.address.trim() !== "";
+    }
     default:
       return false;
   }
@@ -146,7 +158,7 @@ function optionalString(value: string): string | undefined {
   return trimmed || undefined;
 }
 
-function toLeadBody(data: FormState, eventId: string) {
+function toLeadBody(data: FormState, eventId: string, variant: AbVariant) {
   const attribution = getOaiAttribution();
   return {
     typeBien: data.propertyType,
@@ -173,6 +185,7 @@ function toLeadBody(data: FormState, eventId: string) {
     obref: optionalString(attribution.obref ?? ""),
     externalId: optionalString(attribution.externalId),
     sourceUrl: optionalString(attribution.sourceUrl),
+    abVariant: variant,
   };
 }
 
@@ -182,6 +195,7 @@ function prefersReducedMotion(): boolean {
 
 export function LeadForm() {
   const [step, setStep] = useState(1);
+  const [variant, setVariant] = useState<AbVariant>("control");
   const [data, setData] = useState<FormState>(initialState);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
@@ -201,6 +215,7 @@ export function LeadForm() {
   );
 
   useEffect(() => {
+    setVariant(getOrAssignAbVariant());
     const params = new URLSearchParams(window.location.search);
     setData((current) => ({
       ...current,
@@ -220,13 +235,18 @@ export function LeadForm() {
     document.getElementById("lead-first-field")?.focus({ preventScroll: true });
   }, [step, submitted]);
 
+  useEffect(() => {
+    if (step !== 6) return;
+    window.clarity?.("event", "form_step6");
+  }, [step]);
+
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setData((current) => ({ ...current, [key]: value }));
     setError("");
   }
 
   function goNext() {
-    if (!canContinue(step, data)) return;
+    if (!canContinue(step, data, variant)) return;
     setStep((current) => Math.min(TOTAL_STEPS, current + 1));
   }
 
@@ -254,7 +274,7 @@ export function LeadForm() {
     event.preventDefault();
     if (
       step !== TOTAL_STEPS ||
-      !canContinue(6, data) ||
+      !canContinue(6, data, variant) ||
       sending ||
       submittingRef.current
     ) {
@@ -278,7 +298,7 @@ export function LeadForm() {
       const response = await fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(toLeadBody(data, eventId)),
+        body: JSON.stringify(toLeadBody(data, eventId, variant)),
       });
       const result = (await response.json()) as { ok?: boolean; error?: string };
 
@@ -336,7 +356,7 @@ export function LeadForm() {
   const progress = submitted ? 100 : (step / TOTAL_STEPS) * 100;
   const liveMessage = submitted
     ? "Demande enregistrée."
-    : `${step} / ${TOTAL_STEPS}. ${stepTitle(step, data.propertyType)}`;
+    : `${step} / ${TOTAL_STEPS}. ${stepTitle(step, data.propertyType, variant)}`;
   const showLand = showsLandArea(data.propertyType);
   const showRooms = showsRooms(data.propertyType);
   const showLiving = showsLivingArea(data.propertyType);
@@ -412,7 +432,7 @@ export function LeadForm() {
             tabIndex={-1}
             className="form-on-video min-h-[3.8rem] text-balance text-[22px] font-extrabold leading-snug tracking-[-0.03em] text-white sm:min-h-0"
           >
-            {stepTitle(step, data.propertyType)}
+            {stepTitle(step, data.propertyType, variant)}
           </h2>
 
           {/* Hauteur calée sur les étapes 1 à 5 : sans elle, chaque changement
@@ -690,49 +710,85 @@ export function LeadForm() {
                       />
                     </div>
                   </div>
-                  <div>
-                    <label htmlFor="email" className="field-label">
-                      E-mail
-                    </label>
-                    <input
-                      id="email"
-                      className="field-input"
-                      type="email"
-                      autoComplete="email"
-                      inputMode="email"
-                      value={data.email}
-                      onChange={(event) => update("email", event.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="phone" className="field-label">
-                      Téléphone
-                    </label>
-                    <input
-                      id="phone"
-                      className="field-input"
-                      type="tel"
-                      autoComplete="tel"
-                      inputMode="tel"
-                      value={data.phone}
-                      onChange={(event) => update("phone", event.target.value)}
-                      placeholder="027 322 10 25"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="address" className="field-label">
-                      Adresse du bien
-                    </label>
-                    <input
-                      id="address"
-                      className="field-input"
-                      autoComplete="street-address"
-                      value={data.address}
-                      onChange={(event) => update("address", event.target.value)}
-                      placeholder="Rue et numéro"
-                    />
-                    <p className="field-hint">Pour préparer la visite.</p>
-                  </div>
+                  {variant === "short" ? (
+                    <>
+                      <div>
+                        <label htmlFor="phone" className="field-label">
+                          Téléphone
+                        </label>
+                        <input
+                          id="phone"
+                          className="field-input"
+                          type="tel"
+                          autoComplete="tel"
+                          inputMode="tel"
+                          value={data.phone}
+                          onChange={(event) => update("phone", event.target.value)}
+                          placeholder="027 322 10 25"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="email" className="field-label">
+                          E-mail
+                        </label>
+                        <input
+                          id="email"
+                          className="field-input"
+                          type="email"
+                          autoComplete="email"
+                          inputMode="email"
+                          value={data.email}
+                          onChange={(event) => update("email", event.target.value)}
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <label htmlFor="email" className="field-label">
+                          E-mail
+                        </label>
+                        <input
+                          id="email"
+                          className="field-input"
+                          type="email"
+                          autoComplete="email"
+                          inputMode="email"
+                          value={data.email}
+                          onChange={(event) => update("email", event.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="phone" className="field-label">
+                          Téléphone
+                        </label>
+                        <input
+                          id="phone"
+                          className="field-input"
+                          type="tel"
+                          autoComplete="tel"
+                          inputMode="tel"
+                          value={data.phone}
+                          onChange={(event) => update("phone", event.target.value)}
+                          placeholder="027 322 10 25"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="address" className="field-label">
+                          Adresse du bien
+                        </label>
+                        <input
+                          id="address"
+                          className="field-input"
+                          autoComplete="street-address"
+                          value={data.address}
+                          onChange={(event) => update("address", event.target.value)}
+                          placeholder="Rue et numéro"
+                        />
+                        <p className="field-hint">Pour préparer la visite.</p>
+                      </div>
+                    </>
+                  )}
                   <div className="flex items-start gap-3">
                     <input
                       id="consent"
@@ -745,20 +801,38 @@ export function LeadForm() {
                       htmlFor="consent"
                       className="hero-copy text-body text-white"
                     >
-                      J’accepte que ACOR Immobilier Sàrl traite mon nom, mon e-mail,
-                      mon téléphone et les informations sur le bien pour me
-                      recontacter au sujet de cette estimation. Ces données ne sont
-                      pas vendues. Je peux retirer mon consentement à tout moment.
-                      Voir la{" "}
-                      <a
-                        href="/politique-de-confidentialite"
-                        target="_blank"
-                        rel="noopener"
-                        className="font-medium underline underline-offset-4"
-                      >
-                        politique de confidentialité
-                      </a>
-                      .
+                      {variant === "short" ? (
+                        <>
+                          J’accepte d’être recontacté pour cette estimation.
+                          Voir la{" "}
+                          <a
+                            href="/politique-de-confidentialite"
+                            target="_blank"
+                            rel="noopener"
+                            className="font-medium underline underline-offset-4"
+                          >
+                            politique de confidentialité
+                          </a>
+                          .
+                        </>
+                      ) : (
+                        <>
+                          J’accepte que ACOR Immobilier Sàrl traite mon nom, mon e-mail,
+                          mon téléphone et les informations sur le bien pour me
+                          recontacter au sujet de cette estimation. Ces données ne sont
+                          pas vendues. Je peux retirer mon consentement à tout moment.
+                          Voir la{" "}
+                          <a
+                            href="/politique-de-confidentialite"
+                            target="_blank"
+                            rel="noopener"
+                            className="font-medium underline underline-offset-4"
+                          >
+                            politique de confidentialité
+                          </a>
+                          .
+                        </>
+                      )}
                     </label>
                   </div>
                 </div>
@@ -793,7 +867,7 @@ export function LeadForm() {
                     type="button"
                     className="btn-next w-full sm:w-auto"
                     onClick={goNext}
-                    disabled={!canContinue(step, data)}
+                    disabled={!canContinue(step, data, variant)}
                   >
                     Suivant
                   </button>
@@ -805,7 +879,7 @@ export function LeadForm() {
               <button
                 type="submit"
                 className="btn-submit mt-3"
-                disabled={!canContinue(6, data) || sending}
+                disabled={!canContinue(6, data, variant) || sending}
               >
                 {sending ? "Envoi en cours" : "Demander mon estimation"}
               </button>

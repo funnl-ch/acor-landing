@@ -3,6 +3,7 @@ import Script from "next/script";
 import { Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
+import { AbBootstrap } from "@/components/AbBootstrap";
 import { Footer } from "@/components/Footer";
 import { OaiPageView } from "@/components/OaiPageView";
 import { AGENCY } from "@/lib/constants";
@@ -42,6 +43,7 @@ export default function RootLayout({
           {`(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script","ysn6d1qrfs");`}
         </Script>
         <OaiPageView />
+        <AbBootstrap />
         <a className="skip-link" href="#contenu">
           Aller au contenu
         </a>
