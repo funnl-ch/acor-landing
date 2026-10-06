@@ -40,6 +40,13 @@ declare global {
 
 const TOTAL_STEPS = 6;
 const AUTO_ADVANCE_STEPS = new Set([1, 4, 5]);
+const COMPUTE_MESSAGES = [
+  "Analyse de votre bien…",
+  "Comparaison avec le marché local…",
+  "Préparation de votre estimation…",
+];
+const COMPUTE_TICK_MS = 1800;
+const COMPUTE_REDUCED_MS = 700;
 
 function stepTitle(step: number, type: PropertyType | ""): string {
   const titles = [
@@ -198,6 +205,8 @@ export function LeadForm() {
   const [sending, setSending] = useState(false);
   const [communeOpen, setCommuneOpen] = useState(false);
   const [activeOption, setActiveOption] = useState(0);
+  const [computing, setComputing] = useState(false);
+  const [computePhase, setComputePhase] = useState(0);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const skipInitialFocus = useRef(true);
   const advancingRef = useRef(false);
@@ -227,13 +236,44 @@ export function LeadForm() {
       skipInitialFocus.current = false;
       return;
     }
+    if (computing) return;
     document.getElementById("lead-first-field")?.focus({ preventScroll: true });
-  }, [step, submitted]);
+  }, [step, submitted, computing]);
 
   useEffect(() => {
     if (step !== 6) return;
     window.clarity?.("event", "form_step6");
   }, [step]);
+
+  useEffect(() => {
+    if (!computing) {
+      setComputePhase(0);
+      return;
+    }
+
+    window.clarity?.("event", "form_computing");
+    const reduced = prefersReducedMotion();
+    const delay = reduced ? COMPUTE_REDUCED_MS : COMPUTE_TICK_MS;
+    const lastIndex = reduced ? 0 : COMPUTE_MESSAGES.length - 1;
+    let phase = 0;
+    let timeout = 0;
+
+    const tick = () => {
+      timeout = window.setTimeout(() => {
+        if (phase >= lastIndex) {
+          setComputing(false);
+          setStep(6);
+          return;
+        }
+        phase += 1;
+        setComputePhase(phase);
+        tick();
+      }, delay);
+    };
+
+    tick();
+    return () => window.clearTimeout(timeout);
+  }, [computing]);
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setData((current) => ({ ...current, [key]: value }));
@@ -241,21 +281,30 @@ export function LeadForm() {
   }
 
   function goNext() {
-    if (!canContinue(step, data)) return;
+    if (computing || !canContinue(step, data)) return;
     setStep((current) => Math.min(TOTAL_STEPS, current + 1));
   }
 
   function goBack() {
     setError("");
+    if (computing) {
+      setComputing(false);
+      return;
+    }
     setStep((current) => Math.max(1, current - 1));
   }
 
   function autoAdvance(next: () => void) {
-    if (advancingRef.current) return;
+    if (advancingRef.current || computing) return;
     advancingRef.current = true;
+    const startComputing = step === 5;
     next();
     const advance = () => {
-      setStep((current) => Math.min(TOTAL_STEPS, current + 1));
+      if (startComputing) {
+        setComputing(true);
+      } else {
+        setStep((current) => Math.min(TOTAL_STEPS, current + 1));
+      }
       advancingRef.current = false;
     };
     if (prefersReducedMotion()) {
@@ -268,6 +317,7 @@ export function LeadForm() {
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (
+      computing ||
       step !== TOTAL_STEPS ||
       !canContinue(6, data) ||
       sending ||
@@ -348,10 +398,16 @@ export function LeadForm() {
     }
   }
 
-  const progress = submitted ? 100 : (step / TOTAL_STEPS) * 100;
+  const progress = submitted
+    ? 100
+    : computing
+      ? 92
+      : (step / TOTAL_STEPS) * 100;
   const liveMessage = submitted
     ? "Demande enregistrée."
-    : `${step} / ${TOTAL_STEPS}. ${stepTitle(step, data.propertyType)}`;
+    : computing
+      ? COMPUTE_MESSAGES[computePhase]
+      : `${step} / ${TOTAL_STEPS}. ${stepTitle(step, data.propertyType)}`;
   const showLand = showsLandArea(data.propertyType);
   const showRooms = showsRooms(data.propertyType);
   const showLiving = showsLivingArea(data.propertyType);
@@ -393,6 +449,7 @@ export function LeadForm() {
       id="estimation"
       className="mx-auto w-full max-w-[560px] scroll-mt-4 text-left"
       aria-labelledby="form-title"
+      aria-busy={computing || undefined}
     >
       <div className={cardClass}>
           <div className="mb-6 flex items-center gap-4">
@@ -405,7 +462,7 @@ export function LeadForm() {
               aria-label={`Progression, ${step} sur ${TOTAL_STEPS}`}
             >
               <div
-                className="h-full bg-white"
+                className={`h-full bg-white ${computing ? "estimate-compute-bar" : ""}`}
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -413,7 +470,7 @@ export function LeadForm() {
               className="form-on-video shrink-0 text-[17px] text-white/80"
               aria-hidden="true"
             >
-              {step === TOTAL_STEPS ? "Prêt" : `${step} / ${TOTAL_STEPS}`}
+              {computing ? "…" : step === TOTAL_STEPS ? "Prêt" : `${step} / ${TOTAL_STEPS}`}
             </p>
           </div>
 
@@ -426,12 +483,19 @@ export function LeadForm() {
             ref={headingRef}
             tabIndex={-1}
             className={`form-on-video text-balance text-[22px] font-extrabold leading-snug tracking-[-0.03em] text-white ${
-              step === 6 ? "" : "min-h-[3.8rem] sm:min-h-0"
+              step === 6 && !computing ? "" : "min-h-[3.8rem] sm:min-h-0"
             }`}
           >
-            {stepTitle(step, data.propertyType)}
+            {computing
+              ? nbsp("On prépare votre estimation")
+              : stepTitle(step, data.propertyType)}
           </h2>
-          {step === 6 && (
+          {computing && (
+            <p className="hero-copy mt-2 text-body text-white/90">
+              {propertySummary(data)}
+            </p>
+          )}
+          {step === 6 && !computing && (
             <p className="hero-copy mt-2 text-body text-white/90">
               Un courtier ACOR vous la transmet. Indiquez où la recevoir.
             </p>
@@ -440,7 +504,7 @@ export function LeadForm() {
           {/* Hauteur calée sur les étapes 1 à 5 : sans elle, chaque changement
               d'étape déplaçait tout le hero sous le doigt. */}
           <form
-            className={`mt-5 flex flex-col ${step === 6 ? "" : "min-h-[25rem]"}`}
+            className={`mt-5 flex flex-col ${step === 6 && !computing ? "" : "min-h-[25rem]"}`}
             onSubmit={onSubmit}
             noValidate
           >
@@ -665,7 +729,7 @@ export function LeadForm() {
                 </div>
               )}
 
-              {step === 5 && (
+              {step === 5 && !computing && (
                 <div className="grid gap-2.5" role="group" aria-label="Échéance">
                   {TIMELINES.map((item, index) => (
                     <button
@@ -684,7 +748,21 @@ export function LeadForm() {
                 </div>
               )}
 
-              {step === 6 && (
+              {computing && (
+                <div
+                  className="estimate-compute"
+                  role="status"
+                  aria-live="polite"
+                  aria-busy="true"
+                >
+                  <span className="estimate-compute-spinner" aria-hidden="true" />
+                  <p className="hero-copy text-body font-medium text-white">
+                    {COMPUTE_MESSAGES[computePhase]}
+                  </p>
+                </div>
+              )}
+
+              {step === 6 && !computing && (
                 <div className="grid gap-4">
                   <div className="estimate-ready" aria-hidden="true">
                     <p className="estimate-ready-kicker">
@@ -802,7 +880,7 @@ export function LeadForm() {
                   <span />
                 )}
 
-                {showNext && (
+                {showNext && !computing && (
                   <button
                     type="button"
                     className="btn-next w-full sm:w-auto"
@@ -815,7 +893,7 @@ export function LeadForm() {
               </div>
             )}
 
-            {step === 6 && (
+            {step === 6 && !computing && (
               <button
                 type="submit"
                 className="btn-submit mt-3"
