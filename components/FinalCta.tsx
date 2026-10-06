@@ -25,7 +25,7 @@ export function FinalCta() {
                 className="btn-invert w-full sm:w-auto"
                 onClick={scrollToLeadForm}
               >
-                Demander mon estimation
+                Recevoir mon estimation
               </button>
             </p>
             <p className="mt-5 text-[17px] font-normal text-white/80">

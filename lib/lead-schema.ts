@@ -67,7 +67,6 @@ export const leadSchema = z.object({
   obref: optionalText,
   externalId: optionalText,
   sourceUrl: optionalText,
-  abVariant: z.enum(["control", "short"]).optional(),
 });
 
 export type LeadPayload = z.infer<typeof leadSchema>;

@@ -11,7 +11,6 @@ import {
 } from "react";
 import { GoogleRating } from "@/components/GoogleRating";
 import { PropertyTypeIcon } from "@/components/PropertyTypeIcon";
-import { getOrAssignAbVariant, type AbVariant } from "@/lib/ab";
 import { filterCommunes } from "@/lib/communes";
 import {
   getOaiAttribution,
@@ -33,14 +32,16 @@ import {
   type Timeline,
 } from "@/lib/constants";
 
+declare global {
+  interface Window {
+    clarity?: (...args: unknown[]) => void;
+  }
+}
+
 const TOTAL_STEPS = 6;
 const AUTO_ADVANCE_STEPS = new Set([1, 4, 5]);
 
-function stepTitle(
-  step: number,
-  type: PropertyType | "",
-  variant: AbVariant = "control",
-): string {
+function stepTitle(step: number, type: PropertyType | ""): string {
   const titles = [
     "Quel type de bien souhaitez-vous estimer ?",
     type === "terrain"
@@ -57,11 +58,17 @@ function stepTitle(
         ? "Dans quel état est l’immeuble ?"
         : "Dans quel état est le bien ?",
     "Quand souhaitez-vous vendre ?",
-    variant === "short"
-      ? "Un courtier vous rappelle. Où vous joindre ?"
-      : "Où un courtier peut-il vous joindre ?",
+    "Votre estimation est prête",
   ];
   return nbsp(titles[step - 1] ?? "");
+}
+
+function propertySummary(data: FormState): string {
+  const typeLabel =
+    PROPERTY_TYPES.find((item) => item.value === data.propertyType)?.label ??
+    "Bien";
+  const commune = data.commune.trim();
+  return commune ? `${typeLabel} à ${commune}` : typeLabel;
 }
 
 type FormState = {
@@ -76,7 +83,6 @@ type FormState = {
   lastName: string;
   email: string;
   phone: string;
-  address: string;
   consent: boolean;
   website: string;
   utm_source: string;
@@ -98,7 +104,6 @@ const initialState: FormState = {
   lastName: "",
   email: "",
   phone: "",
-  address: "",
   consent: false,
   website: "",
   utm_source: "",
@@ -108,11 +113,7 @@ const initialState: FormState = {
   referrer: "",
 };
 
-function canContinue(
-  step: number,
-  data: FormState,
-  variant: AbVariant = "control",
-): boolean {
+function canContinue(step: number, data: FormState): boolean {
   switch (step) {
     case 1:
       return data.propertyType !== "";
@@ -131,16 +132,14 @@ function canContinue(
       return data.condition !== "";
     case 5:
       return data.timeline !== "";
-    case 6: {
-      const contact =
+    case 6:
+      return (
         data.firstName.trim() !== "" &&
         data.lastName.trim() !== "" &&
         data.email.trim() !== "" &&
         data.phone.trim() !== "" &&
-        data.consent;
-      if (variant === "short") return contact;
-      return contact && data.address.trim() !== "";
-    }
+        data.consent
+      );
     default:
       return false;
   }
@@ -158,7 +157,7 @@ function optionalString(value: string): string | undefined {
   return trimmed || undefined;
 }
 
-function toLeadBody(data: FormState, eventId: string, variant: AbVariant) {
+function toLeadBody(data: FormState, eventId: string) {
   const attribution = getOaiAttribution();
   return {
     typeBien: data.propertyType,
@@ -172,7 +171,6 @@ function toLeadBody(data: FormState, eventId: string, variant: AbVariant) {
     nom: data.lastName.trim(),
     email: data.email.trim(),
     telephone: data.phone.trim(),
-    adresseBien: optionalString(data.address),
     consentement: true as const,
     honeypot: data.website,
     utmSource: optionalString(data.utm_source),
@@ -185,7 +183,6 @@ function toLeadBody(data: FormState, eventId: string, variant: AbVariant) {
     obref: optionalString(attribution.obref ?? ""),
     externalId: optionalString(attribution.externalId),
     sourceUrl: optionalString(attribution.sourceUrl),
-    abVariant: variant,
   };
 }
 
@@ -195,7 +192,6 @@ function prefersReducedMotion(): boolean {
 
 export function LeadForm() {
   const [step, setStep] = useState(1);
-  const [variant, setVariant] = useState<AbVariant>("control");
   const [data, setData] = useState<FormState>(initialState);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
@@ -215,7 +211,6 @@ export function LeadForm() {
   );
 
   useEffect(() => {
-    setVariant(getOrAssignAbVariant());
     const params = new URLSearchParams(window.location.search);
     setData((current) => ({
       ...current,
@@ -246,7 +241,7 @@ export function LeadForm() {
   }
 
   function goNext() {
-    if (!canContinue(step, data, variant)) return;
+    if (!canContinue(step, data)) return;
     setStep((current) => Math.min(TOTAL_STEPS, current + 1));
   }
 
@@ -274,7 +269,7 @@ export function LeadForm() {
     event.preventDefault();
     if (
       step !== TOTAL_STEPS ||
-      !canContinue(6, data, variant) ||
+      !canContinue(6, data) ||
       sending ||
       submittingRef.current
     ) {
@@ -298,7 +293,7 @@ export function LeadForm() {
       const response = await fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(toLeadBody(data, eventId, variant)),
+        body: JSON.stringify(toLeadBody(data, eventId)),
       });
       const result = (await response.json()) as { ok?: boolean; error?: string };
 
@@ -356,7 +351,7 @@ export function LeadForm() {
   const progress = submitted ? 100 : (step / TOTAL_STEPS) * 100;
   const liveMessage = submitted
     ? "Demande enregistrée."
-    : `${step} / ${TOTAL_STEPS}. ${stepTitle(step, data.propertyType, variant)}`;
+    : `${step} / ${TOTAL_STEPS}. ${stepTitle(step, data.propertyType)}`;
   const showLand = showsLandArea(data.propertyType);
   const showRooms = showsRooms(data.propertyType);
   const showLiving = showsLivingArea(data.propertyType);
@@ -385,8 +380,8 @@ export function LeadForm() {
             Demande envoyée
           </h2>
           <p className="hero-copy mt-5 text-body text-white">
-            Votre demande est enregistrée. Un courtier ACOR vous rappelle sous
-            48 heures ouvrables pour convenir d’une visite.
+            Votre estimation est enregistrée. Un courtier ACOR vous la transmet
+            sous 48 heures ouvrables.
           </p>
         </div>
       </section>
@@ -418,7 +413,7 @@ export function LeadForm() {
               className="form-on-video shrink-0 text-[17px] text-white/80"
               aria-hidden="true"
             >
-              {step} / {TOTAL_STEPS}
+              {step === TOTAL_STEPS ? "Prêt" : `${step} / ${TOTAL_STEPS}`}
             </p>
           </div>
 
@@ -430,15 +425,22 @@ export function LeadForm() {
             id="form-title"
             ref={headingRef}
             tabIndex={-1}
-            className="form-on-video min-h-[3.8rem] text-balance text-[22px] font-extrabold leading-snug tracking-[-0.03em] text-white sm:min-h-0"
+            className={`form-on-video text-balance text-[22px] font-extrabold leading-snug tracking-[-0.03em] text-white ${
+              step === 6 ? "" : "min-h-[3.8rem] sm:min-h-0"
+            }`}
           >
-            {stepTitle(step, data.propertyType, variant)}
+            {stepTitle(step, data.propertyType)}
           </h2>
+          {step === 6 && (
+            <p className="hero-copy mt-2 text-body text-white/90">
+              Un courtier ACOR vous la transmet. Indiquez où la recevoir.
+            </p>
+          )}
 
           {/* Hauteur calée sur les étapes 1 à 5 : sans elle, chaque changement
               d'étape déplaçait tout le hero sous le doigt. */}
           <form
-            className="mt-5 flex min-h-[25rem] flex-col"
+            className={`mt-5 flex flex-col ${step === 6 ? "" : "min-h-[25rem]"}`}
             onSubmit={onSubmit}
             noValidate
           >
@@ -684,6 +686,15 @@ export function LeadForm() {
 
               {step === 6 && (
                 <div className="grid gap-4">
+                  <div className="estimate-ready" aria-hidden="true">
+                    <p className="estimate-ready-kicker">
+                      {propertySummary(data)}
+                    </p>
+                    <p className="estimate-ready-amount">CHF 1 250 000</p>
+                    <p className="estimate-ready-lock">
+                      À recevoir par un courtier
+                    </p>
+                  </div>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
                       <label htmlFor="lead-first-field" className="field-label">
@@ -710,85 +721,35 @@ export function LeadForm() {
                       />
                     </div>
                   </div>
-                  {variant === "short" ? (
-                    <>
-                      <div>
-                        <label htmlFor="phone" className="field-label">
-                          Téléphone
-                        </label>
-                        <input
-                          id="phone"
-                          className="field-input"
-                          type="tel"
-                          autoComplete="tel"
-                          inputMode="tel"
-                          value={data.phone}
-                          onChange={(event) => update("phone", event.target.value)}
-                          placeholder="027 322 10 25"
-                        />
-                      </div>
-                      <div>
-                        <label htmlFor="email" className="field-label">
-                          E-mail
-                        </label>
-                        <input
-                          id="email"
-                          className="field-input"
-                          type="email"
-                          autoComplete="email"
-                          inputMode="email"
-                          value={data.email}
-                          onChange={(event) => update("email", event.target.value)}
-                        />
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div>
-                        <label htmlFor="email" className="field-label">
-                          E-mail
-                        </label>
-                        <input
-                          id="email"
-                          className="field-input"
-                          type="email"
-                          autoComplete="email"
-                          inputMode="email"
-                          value={data.email}
-                          onChange={(event) => update("email", event.target.value)}
-                        />
-                      </div>
-                      <div>
-                        <label htmlFor="phone" className="field-label">
-                          Téléphone
-                        </label>
-                        <input
-                          id="phone"
-                          className="field-input"
-                          type="tel"
-                          autoComplete="tel"
-                          inputMode="tel"
-                          value={data.phone}
-                          onChange={(event) => update("phone", event.target.value)}
-                          placeholder="027 322 10 25"
-                        />
-                      </div>
-                      <div>
-                        <label htmlFor="address" className="field-label">
-                          Adresse du bien
-                        </label>
-                        <input
-                          id="address"
-                          className="field-input"
-                          autoComplete="street-address"
-                          value={data.address}
-                          onChange={(event) => update("address", event.target.value)}
-                          placeholder="Rue et numéro"
-                        />
-                        <p className="field-hint">Pour préparer la visite.</p>
-                      </div>
-                    </>
-                  )}
+                  <div>
+                    <label htmlFor="phone" className="field-label">
+                      Téléphone
+                    </label>
+                    <input
+                      id="phone"
+                      className="field-input"
+                      type="tel"
+                      autoComplete="tel"
+                      inputMode="tel"
+                      value={data.phone}
+                      onChange={(event) => update("phone", event.target.value)}
+                      placeholder="027 322 10 25"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="email" className="field-label">
+                      E-mail
+                    </label>
+                    <input
+                      id="email"
+                      className="field-input"
+                      type="email"
+                      autoComplete="email"
+                      inputMode="email"
+                      value={data.email}
+                      onChange={(event) => update("email", event.target.value)}
+                    />
+                  </div>
                   <div className="flex items-start gap-3">
                     <input
                       id="consent"
@@ -801,38 +762,17 @@ export function LeadForm() {
                       htmlFor="consent"
                       className="hero-copy text-body text-white"
                     >
-                      {variant === "short" ? (
-                        <>
-                          J’accepte d’être recontacté pour cette estimation.
-                          Voir la{" "}
-                          <a
-                            href="/politique-de-confidentialite"
-                            target="_blank"
-                            rel="noopener"
-                            className="font-medium underline underline-offset-4"
-                          >
-                            politique de confidentialité
-                          </a>
-                          .
-                        </>
-                      ) : (
-                        <>
-                          J’accepte que ACOR Immobilier Sàrl traite mon nom, mon e-mail,
-                          mon téléphone et les informations sur le bien pour me
-                          recontacter au sujet de cette estimation. Ces données ne sont
-                          pas vendues. Je peux retirer mon consentement à tout moment.
-                          Voir la{" "}
-                          <a
-                            href="/politique-de-confidentialite"
-                            target="_blank"
-                            rel="noopener"
-                            className="font-medium underline underline-offset-4"
-                          >
-                            politique de confidentialité
-                          </a>
-                          .
-                        </>
-                      )}
+                      J’accepte d’être recontacté pour cette estimation. Voir
+                      la{" "}
+                      <a
+                        href="/politique-de-confidentialite"
+                        target="_blank"
+                        rel="noopener"
+                        className="font-medium underline underline-offset-4"
+                      >
+                        politique de confidentialité
+                      </a>
+                      .
                     </label>
                   </div>
                 </div>
@@ -867,7 +807,7 @@ export function LeadForm() {
                     type="button"
                     className="btn-next w-full sm:w-auto"
                     onClick={goNext}
-                    disabled={!canContinue(step, data, variant)}
+                    disabled={!canContinue(step, data)}
                   >
                     Suivant
                   </button>
@@ -879,9 +819,9 @@ export function LeadForm() {
               <button
                 type="submit"
                 className="btn-submit mt-3"
-                disabled={!canContinue(6, data, variant) || sending}
+                disabled={!canContinue(6, data) || sending}
               >
-                {sending ? "Envoi en cours" : "Demander mon estimation"}
+                {sending ? "Envoi en cours" : "Recevoir mon estimation"}
               </button>
             )}
           </form>

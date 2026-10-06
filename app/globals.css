@@ -651,3 +651,41 @@
     opacity: 0.35;
   }
 }
+
+.estimate-ready {
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  overflow: hidden;
+}
+
+.estimate-ready-kicker {
+  font-size: 14px;
+  line-height: 1.3;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.estimate-ready-amount {
+  margin-top: 2px;
+  font-size: 1.85rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+  filter: blur(14px);
+  user-select: none;
+  pointer-events: none;
+}
+
+.estimate-ready-lock {
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .estimate-ready-amount {
+    filter: blur(16px);
+  }
+}
