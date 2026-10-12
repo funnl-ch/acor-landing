@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://acor-landing.vercel.app"),
   title: "Combien vaut votre bien en Valais\u00A0? | ACOR Immobilier",
   description:
-    "Un courtier ACOR se déplace et vous remet une estimation écrite, gratuite et sans engagement. Agence à Sion, Valais.",
+    "Estimez votre bien en ligne en seulement quelques minutes et profitez d’un accompagnement personnalisé pour vendre au meilleur prix. Processus rapide et sans engagement.",
   robots: { index: true, follow: true },
   icons: {
     icon: "/favicon.ico",

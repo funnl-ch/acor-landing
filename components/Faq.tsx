@@ -7,17 +7,17 @@ const QUESTIONS = [
   {
     question: "Est-ce sans engagement ?",
     answer:
-      "Oui. Le processus est rapide et sans engagement. Demander une estimation ne vous oblige pas à vendre avec nous.",
+      "Oui. Processus rapide et sans engagement. Demander une estimation ne vous oblige pas à vendre avec nous.",
   },
   {
     question: "Combien de temps cela prend-il ?",
     answer:
-      "La demande se fait en quelques minutes. Un courtier vous recontacte ensuite pour l’accompagnement personnalisé.",
+      "Estimez votre bien en ligne en seulement quelques minutes. Un courtier vous recontacte ensuite pour un accompagnement personnalisé.",
   },
   {
     question: "Qui s’occupe de l’estimation ?",
     answer:
-      "Nos courtiers, dont des experts en estimation immobilière au brevet fédéral. Ils vous accompagnent pour vendre au meilleur prix.",
+      "Nos courtiers, dont des experts en estimation immobilière au brevet fédéral. Ils vous accompagnent pour vendre votre bien au meilleur prix.",
   },
 ] as const;
 
@@ -27,8 +27,11 @@ export function Faq() {
 
   return (
     <section className="bg-page" aria-labelledby="faq-title">
-      <div className="mx-auto max-w-[900px] px-5 py-24 sm:px-8">
-        <h2 id="faq-title" className="text-[22px] font-bold leading-snug text-ink">
+      <div className="mx-auto max-w-[900px] px-5 py-16 sm:px-8 sm:py-20">
+        <h2
+          id="faq-title"
+          className="text-[26px] font-extrabold leading-[1.15] tracking-[-0.035em] text-ink sm:text-[32px]"
+        >
           Questions fréquentes
         </h2>
         <ul className="mt-10">

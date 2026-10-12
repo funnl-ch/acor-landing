@@ -8,6 +8,11 @@ export const AGENCY = {
   phoneHref: "tel:+41273221025",
   email: "info@acor-immo.ch",
   che: "CH-626.4.014.358-2",
+  agencies: 4,
+  agencyCities: ["Sion", "Sierre", "Martigny", "Lausanne"],
+  brokers: 9,
+  expertsFederal: 2,
+  soldListings: 390,
 } as const;
 
 // pas d'URL : aucun lien sortant sur cette landing, le trafic est payant

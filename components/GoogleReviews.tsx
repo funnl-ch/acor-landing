@@ -188,9 +188,17 @@ export function GoogleReviews() {
   }
 
   return (
-    <section ref={sectionRef} className="bg-page" aria-label="Avis Google">
-      <div className="mx-auto flex max-w-5xl items-center justify-center px-5 pt-8 sm:px-8 md:justify-between">
-        <GoogleRating className="mt-0" />
+    <section ref={sectionRef} className="bg-page" aria-labelledby="avis-title">
+      <div className="mx-auto flex max-w-5xl flex-col gap-6 px-5 pt-4 sm:px-8 md:flex-row md:items-end md:justify-between">
+        <div>
+          <h2
+            id="avis-title"
+            className="text-[26px] font-extrabold leading-[1.15] tracking-[-0.035em] text-ink sm:text-[32px]"
+          >
+            Témoignages
+          </h2>
+          <GoogleRating className="mt-4" />
+        </div>
         <div className="hidden items-center md:flex">
           <button
             type="button"
