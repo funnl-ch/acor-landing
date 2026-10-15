@@ -52,7 +52,7 @@ export const leadSchema = z.object({
   echeance: z.enum(ECHEANCE),
   prenom: z.string().trim().min(1),
   nom: z.string().trim().min(1),
-  email: z.email(),
+  email: z.preprocess(emptyToUndefined, z.email().optional()),
   telephone: z.string().trim().min(1),
   adresseBien: optionalText,
   consentement: z.literal(true),
@@ -67,6 +67,7 @@ export const leadSchema = z.object({
   obref: optionalText,
   externalId: optionalText,
   sourceUrl: optionalText,
+  mesurePublicitaire: z.boolean().optional(),
 });
 
 export type LeadPayload = z.infer<typeof leadSchema>;

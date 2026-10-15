@@ -12,12 +12,12 @@ const QUESTIONS = [
   {
     question: "Combien de temps cela prend-il ?",
     answer:
-      "Estimez votre bien en ligne en seulement quelques minutes. Un courtier vous recontacte ensuite pour un accompagnement personnalisé.",
+      "Le formulaire prend quelques minutes. Un courtier ACOR vous transmet l’estimation sous 48 heures ouvrables.",
   },
   {
     question: "Qui s’occupe de l’estimation ?",
     answer:
-      "Nos courtiers, dont des experts en estimation immobilière au brevet fédéral. Ils vous accompagnent pour vendre votre bien au meilleur prix.",
+      "Nos courtiers, dont des experts en estimation immobilière au brevet fédéral, vous accompagnent pour la vente de votre bien.",
   },
 ] as const;
 

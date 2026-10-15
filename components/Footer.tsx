@@ -3,6 +3,7 @@
 import { Fragment } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { openConsentPreferences } from "@/lib/consent";
 import { AGENCY, FUNNL } from "@/lib/constants";
 import { trackCustomEvent } from "@/lib/oai";
 import { scrollToLeadForm } from "@/lib/scroll-to-form";
@@ -80,6 +81,16 @@ export function Footer() {
                 </Link>
               </Fragment>
             ))}
+            <span aria-hidden="true" className="hidden sm:inline">
+              ·
+            </span>
+            <button
+              type="button"
+              className="whitespace-nowrap underline-offset-4 hover:underline"
+              onClick={openConsentPreferences}
+            >
+              Cookies
+            </button>
           </nav>
 
           {/* ligne à part : accolée aux liens légaux, la mention repassait

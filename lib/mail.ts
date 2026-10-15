@@ -73,7 +73,7 @@ export function buildLeadEmail(lead: LeadPayload): {
     lead.telephone,
     lead.email,
     `Échéance : ${ECHEANCE_LABELS[lead.echeance]}`,
-  ];
+  ].filter((line): line is string => Boolean(line));
 
   const bienLines = [
     `Type : ${typeLabel}`,
@@ -113,9 +113,13 @@ export function buildLeadEmail(lead: LeadPayload): {
   const htmlContact = [
     escapeHtml(`${lead.prenom} ${lead.nom}`),
     `<a href="${escapeHtml(telHref(lead.telephone))}">${escapeHtml(lead.telephone)}</a>`,
-    `<a href="mailto:${escapeHtml(lead.email)}">${escapeHtml(lead.email)}</a>`,
+    lead.email
+      ? `<a href="mailto:${escapeHtml(lead.email)}">${escapeHtml(lead.email)}</a>`
+      : undefined,
     `Échéance : ${escapeHtml(ECHEANCE_LABELS[lead.echeance])}`,
-  ].join("<br>");
+  ]
+    .filter((line): line is string => Boolean(line))
+    .join("<br>");
 
   const htmlBien = bienLines.map((line) => escapeHtml(line)).join("<br>");
   const htmlProvenance = [
@@ -160,7 +164,7 @@ export async function sendLeadEmail(lead: LeadPayload): Promise<void> {
     from,
     to,
     cc: cc || undefined,
-    replyTo: lead.email,
+    replyTo: lead.email || undefined,
     subject,
     text,
     html,

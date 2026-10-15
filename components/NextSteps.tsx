@@ -24,11 +24,11 @@ const STATS = [
 const POINTS = [
   {
     title: "En ligne, en quelques minutes",
-    text: "Vous décrivez le bien : type, commune, surface, état. Nous préparons ensuite l’estimation, en seulement quelques minutes.",
+    text: "Vous décrivez le bien : type, commune, surface, état. Le formulaire prend quelques minutes. Un courtier ACOR vous transmet ensuite l’estimation sous 48 heures ouvrables.",
   },
   {
     title: "Un accompagnement personnalisé",
-    text: "Un courtier ACOR vous recontacte pour vendre votre bien immobilier au meilleur prix, avec un suivi adapté à votre situation.",
+    text: "Un courtier ACOR vous recontacte, avec un suivi adapté à votre situation.",
   },
   {
     title: "Sans engagement",
@@ -47,9 +47,9 @@ export function NextSteps() {
           Processus rapide et sans engagement.
         </h2>
         <p className="mt-5 max-w-[68ch] text-justify text-[17px] leading-[1.55] text-muted hyphens-auto">
-          Estimez votre bien en ligne en seulement quelques minutes et profitez
-          d’un accompagnement personnalisé pour vendre votre bien immobilier au
-          meilleur prix.
+          Décrivez votre bien en ligne en quelques minutes. Un courtier ACOR
+          vous transmet l’estimation sous 48 heures ouvrables, gratuitement et
+          sans engagement.
         </p>
 
         <AnimatedStats stats={STATS} />

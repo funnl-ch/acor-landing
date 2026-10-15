@@ -1,9 +1,11 @@
+import { readTrackingConsent } from "@/lib/consent";
 import {
   normalizeEmail,
   normalizeName,
   normalizePhone,
   sha256Hex,
 } from "@/lib/oai-hash";
+import { loadTrackingScripts } from "@/lib/tracking";
 
 declare global {
   interface Window {
@@ -15,7 +17,7 @@ const EXTERNAL_ID_COOKIE = "__oai_eid";
 const TWO_YEARS_S = 60 * 60 * 24 * 365 * 2;
 
 export type OaiUserInput = {
-  email: string;
+  email?: string;
   firstName?: string;
   lastName?: string;
   phone?: string;
@@ -28,6 +30,10 @@ export type OaiAttribution = {
   externalId: string;
   sourceUrl: string;
 };
+
+function trackingAllowed(): boolean {
+  return readTrackingConsent() === "accepted";
+}
 
 function hasOaiq(): boolean {
   return typeof window !== "undefined" && typeof window.oaiq === "function";
@@ -43,6 +49,7 @@ function readCookie(name: string): string | undefined {
 
 export function getExternalId(): string {
   if (typeof document === "undefined") return "";
+  if (!trackingAllowed()) return "";
 
   const existing = readCookie(EXTERNAL_ID_COOKIE)?.trim();
   if (existing) return existing;
@@ -68,6 +75,8 @@ export function getOaiAttribution(): OaiAttribution {
 
 /** Matching de base dès la première vue : identifiant cookie, pays, canton. */
 export async function setOaiContext(): Promise<void> {
+  if (!trackingAllowed()) return;
+  loadTrackingScripts();
   if (!hasOaiq()) return;
   const externalId = getExternalId().trim();
   if (!externalId) return;
@@ -87,14 +96,18 @@ export async function setOaiUser({
   phone,
   city,
 }: OaiUserInput): Promise<void> {
+  if (!trackingAllowed()) return;
+  loadTrackingScripts();
   if (!hasOaiq()) return;
 
   const user: Record<string, string> = {
-    email_sha256: await sha256Hex(normalizeEmail(email)),
     external_id_sha256: await sha256Hex(getExternalId().trim()),
     country: "CH",
     region: "Valais",
   };
+
+  const normalizedEmail = normalizeEmail(email ?? "");
+  if (normalizedEmail) user.email_sha256 = await sha256Hex(normalizedEmail);
 
   const first = normalizeName(firstName);
   if (first) user.first_name_sha256 = await sha256Hex(first);
@@ -116,7 +129,7 @@ export function trackEvent(
   data: Record<string, unknown>,
   options?: Record<string, unknown>,
 ): void {
-  if (!hasOaiq()) return;
+  if (!trackingAllowed() || !hasOaiq()) return;
   if (options) {
     window.oaiq!("measure", name, data, options);
     return;

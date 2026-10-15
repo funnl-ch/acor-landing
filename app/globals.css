@@ -668,61 +668,85 @@
   color: rgba(255, 255, 255, 0.82);
 }
 
-.estimate-ready-amount {
-  margin-top: 2px;
-  font-size: 1.85rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  color: #ffffff;
-  filter: blur(14px);
-  user-select: none;
-  pointer-events: none;
+.consent-banner {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  left: 16px;
+  z-index: 40;
+  display: grid;
+  gap: 12px;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 16px 16px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(17, 17, 17, 0.12);
 }
 
-.estimate-ready-lock {
-  margin-top: 6px;
-  font-size: 14px;
+.consent-copy {
+  margin: 0;
+  color: var(--color-ink);
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.consent-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+@media (min-width: 520px) {
+  .consent-actions {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.consent-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--button-height);
+  padding: 0.85rem 0.75rem;
+  border: 2px solid var(--color-brand);
+  border-radius: var(--radius);
+  appearance: none;
+  background: #ffffff;
+  color: var(--color-brand);
+  font-size: 15px;
   font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.consent-btn-accept {
+  background: var(--color-brand);
   color: #ffffff;
 }
 
-.estimate-compute {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 16px;
-  padding-top: 8px;
+.consent-btn:hover {
+  background: var(--color-brand);
+  color: #ffffff;
 }
 
-.estimate-compute-spinner {
-  width: 28px;
-  height: 28px;
-  border: 2px solid rgba(255, 255, 255, 0.28);
-  border-top-color: #ffffff;
-  border-radius: 50%;
-  animation: estimate-spin 0.7s linear infinite;
+.consent-more {
+  justify-self: center;
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 8px;
+  color: #646b78;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+  text-underline-offset: 3px;
 }
 
-.estimate-compute-bar {
-  transition: width 1s ease;
-}
-
-@keyframes estimate-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .estimate-ready-amount {
-    filter: blur(16px);
-  }
-
-  .estimate-compute-spinner {
-    animation: none;
-  }
-
-  .estimate-compute-bar {
-    transition: none;
-  }
+.consent-more:hover {
+  color: var(--color-ink);
+  text-decoration: underline;
 }

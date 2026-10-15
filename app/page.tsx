@@ -12,8 +12,8 @@ export default function HomePage() {
         title="Bien vendre commence par connaître le bon prix."
         underlined="le bon prix"
         subtitle={[
-          "Estimez votre bien en ligne en quelques minutes.",
-          "Processus rapide et sans engagement.",
+          "Décrivez votre bien en quelques minutes.",
+          "Estimation transmise sous 48 heures ouvrables, sans engagement.",
         ]}
       />
       <NextSteps />

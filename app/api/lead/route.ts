@@ -89,10 +89,12 @@ export async function POST(request: Request) {
     console.error("LEAD_FAILED", JSON.stringify(parsed.data));
   }
 
-  await sendOaiLeadEvent(parsed.data, {
-    ip: clientIp(request),
-    userAgent: request.headers.get("user-agent") ?? "",
-  });
+  if (parsed.data.mesurePublicitaire) {
+    await sendOaiLeadEvent(parsed.data, {
+      ip: clientIp(request),
+      userAgent: request.headers.get("user-agent") ?? "",
+    });
+  }
 
   return NextResponse.json({ ok: true });
 }

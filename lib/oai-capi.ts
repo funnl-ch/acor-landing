@@ -22,19 +22,19 @@ export async function sendOaiLeadEvent(
   const pixelId = process.env.OPENAI_PIXEL_ID?.trim() || OAI_PIXEL_ID;
   if (!token || !lead.eventId) return;
 
-  const emails = [await sha256Hex(normalizeEmail(lead.email))];
+  const email = lead.email?.trim();
   const phones = normalizePhone(lead.telephone);
   const first = normalizeName(lead.prenom);
   const last = normalizeName(lead.nom);
   const external = lead.externalId?.trim();
 
   const user: Record<string, unknown> = {
-    emails_sha256: emails,
     countries: ["CH"],
     regions: ["Valais"],
     cities: [lead.commune],
   };
 
+  if (email) user.emails_sha256 = [await sha256Hex(normalizeEmail(email))];
   if (phones) user.phone_numbers_sha256 = [await sha256Hex(phones)];
   if (first) user.first_names_sha256 = [await sha256Hex(first)];
   if (last) user.last_names_sha256 = [await sha256Hex(last)];
