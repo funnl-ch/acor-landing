@@ -8,8 +8,8 @@ type QueuedFn = ((...args: unknown[]) => void) & { q: unknown[] };
 function installOpenAiPixel(): void {
   if (typeof window.oaiq === "function") return;
 
-  const queue = function (this: unknown) {
-    queue.q.push(arguments);
+  const queue = function (...args: unknown[]) {
+    queue.q.push(args);
   } as QueuedFn;
   queue.q = [];
   window.oaiq = queue;
@@ -27,8 +27,8 @@ function installOpenAiPixel(): void {
 function installClarity(): void {
   if (document.getElementById("microsoft-clarity")) return;
 
-  const clarity = function (this: unknown) {
-    (clarity.q = clarity.q || []).push(arguments);
+  const clarity = function (...args: unknown[]) {
+    (clarity.q = clarity.q || []).push(args);
   } as QueuedFn;
   clarity.q = [];
   window.clarity = window.clarity || clarity;
