@@ -39,7 +39,7 @@ declare global {
   }
 }
 
-const TOTAL_STEPS = 6;
+const TOTAL_STEPS = 7;
 const AUTO_ADVANCE_STEPS = new Set([1, 4, 5]);
 
 function stepTitle(step: number, type: PropertyType | ""): string {
@@ -59,6 +59,7 @@ function stepTitle(step: number, type: PropertyType | ""): string {
         ? "Dans quel état est l’immeuble ?"
         : "Dans quel état est le bien ?",
     "Quand souhaitez-vous vendre ?",
+    "Comment vous appelez-vous ?",
     "Où recevoir votre estimation ?",
   ];
   return nbsp(titles[step - 1] ?? "");
@@ -134,13 +135,9 @@ function canContinue(step: number, data: FormState): boolean {
     case 5:
       return data.timeline !== "";
     case 6:
-      return (
-        data.firstName.trim() !== "" &&
-        data.lastName.trim() !== "" &&
-        emailOk(data.email) &&
-        data.phone.trim() !== "" &&
-        data.consent
-      );
+      return data.firstName.trim() !== "" && data.lastName.trim() !== "";
+    case 7:
+      return emailOk(data.email) && data.consent;
     default:
       return false;
   }
@@ -154,9 +151,7 @@ function optionalNumber(value: string): number | undefined {
 }
 
 function emailOk(value: string): boolean {
-  const trimmed = value.trim();
-  if (!trimmed) return true;
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 }
 
 function optionalString(value: string): string | undefined {
@@ -176,8 +171,8 @@ function toLeadBody(data: FormState, eventId: string) {
     echeance: data.timeline,
     prenom: data.firstName.trim(),
     nom: data.lastName.trim(),
-    email: optionalString(data.email),
-    telephone: data.phone.trim(),
+    email: data.email.trim(),
+    telephone: optionalString(data.phone),
     consentement: true as const,
     honeypot: data.website,
     utmSource: optionalString(data.utm_source),
@@ -239,8 +234,8 @@ export function LeadForm() {
   }, [step, submitted]);
 
   useEffect(() => {
-    if (step !== 6 || readTrackingConsent() !== "accepted") return;
-    window.clarity?.("event", "form_step6");
+    if (step < 6 || readTrackingConsent() !== "accepted") return;
+    window.clarity?.("event", `form_step${step}`);
   }, [step]);
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
@@ -276,11 +271,14 @@ export function LeadForm() {
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (
-      step !== TOTAL_STEPS ||
-      !canContinue(6, data) ||
+      !canContinue(step, data) ||
       sending ||
       submittingRef.current
     ) {
+      return;
+    }
+    if (step < TOTAL_STEPS) {
+      goNext();
       return;
     }
 
@@ -434,12 +432,12 @@ export function LeadForm() {
             ref={headingRef}
             tabIndex={-1}
             className={`form-on-video text-balance text-[22px] font-extrabold leading-snug tracking-[-0.03em] text-white ${
-              step === 6 ? "" : "min-h-[3.8rem] sm:min-h-0"
+              step === TOTAL_STEPS ? "" : "min-h-[3.8rem] sm:min-h-0"
             }`}
           >
             {stepTitle(step, data.propertyType)}
           </h2>
-          {step === 6 && (
+          {step === TOTAL_STEPS && (
             <p className="hero-copy mt-2 text-body text-white/90">
               Un courtier ACOR vous la transmet. Indiquez où la recevoir.
             </p>
@@ -448,7 +446,7 @@ export function LeadForm() {
           {/* Hauteur calée sur les étapes 1 à 5 : sans elle, chaque changement
               d'étape déplaçait tout le hero sous le doigt. */}
           <form
-            className={`mt-5 flex flex-col ${step === 6 ? "" : "min-h-[25rem]"}`}
+            className={`mt-5 flex flex-col ${step === TOTAL_STEPS ? "" : "min-h-[25rem]"}`}
             onSubmit={onSubmit}
             noValidate
           >
@@ -723,9 +721,28 @@ export function LeadForm() {
                       />
                     </div>
                   </div>
+                </div>
+              )}
+
+              {step === 7 && (
+                <div className="grid gap-4">
+                  <div>
+                    <label htmlFor="lead-first-field" className="field-label">
+                      E-mail
+                    </label>
+                    <input
+                      id="lead-first-field"
+                      className="field-input"
+                      type="email"
+                      autoComplete="email"
+                      inputMode="email"
+                      value={data.email}
+                      onChange={(event) => update("email", event.target.value)}
+                    />
+                  </div>
                   <div>
                     <label htmlFor="phone" className="field-label">
-                      Téléphone
+                      Téléphone <span className="font-normal text-white/70">(facultatif)</span>
                     </label>
                     <input
                       id="phone"
@@ -736,21 +753,6 @@ export function LeadForm() {
                       value={data.phone}
                       onChange={(event) => update("phone", event.target.value)}
                       placeholder="079 123 45 67"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="email" className="field-label">
-                      E-mail <span className="font-normal text-white/70">(facultatif)</span>
-                    </label>
-                    <input
-                      id="email"
-                      className="field-input"
-                      type="email"
-                      autoComplete="email"
-                      inputMode="email"
-                      value={data.email}
-                      onChange={(event) => update("email", event.target.value)}
-                      aria-invalid={data.email.trim() !== "" && !emailOk(data.email)}
                     />
                   </div>
                   <div className="flex items-start gap-3">
@@ -765,8 +767,16 @@ export function LeadForm() {
                       htmlFor="consent"
                       className="hero-copy text-body text-white"
                     >
-                      J’accepte d’être recontacté pour cette estimation. Voir
-                      la{" "}
+                      J’accepte les{" "}
+                      <a
+                        href="/conditions-generales"
+                        target="_blank"
+                        rel="noopener"
+                        className="font-medium underline underline-offset-4"
+                      >
+                        conditions générales
+                      </a>{" "}
+                      et la{" "}
                       <a
                         href="/politique-de-confidentialite"
                         target="_blank"
@@ -818,11 +828,11 @@ export function LeadForm() {
               </div>
             )}
 
-            {step === 6 && (
+            {step === TOTAL_STEPS && (
               <button
                 type="submit"
                 className="btn-submit mt-3"
-                disabled={!canContinue(6, data) || sending}
+                disabled={!canContinue(TOTAL_STEPS, data) || sending}
               >
                 {sending ? "Envoi en cours" : "Recevoir mon estimation gratuitement"}
               </button>

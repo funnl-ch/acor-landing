@@ -112,10 +112,10 @@ export function buildLeadEmail(lead: LeadPayload): {
 
   const htmlContact = [
     escapeHtml(`${lead.prenom} ${lead.nom}`),
-    `<a href="${escapeHtml(telHref(lead.telephone))}">${escapeHtml(lead.telephone)}</a>`,
-    lead.email
-      ? `<a href="mailto:${escapeHtml(lead.email)}">${escapeHtml(lead.email)}</a>`
+    lead.telephone
+      ? `<a href="${escapeHtml(telHref(lead.telephone))}">${escapeHtml(lead.telephone)}</a>`
       : undefined,
+    `<a href="mailto:${escapeHtml(lead.email)}">${escapeHtml(lead.email)}</a>`,
     `Échéance : ${escapeHtml(ECHEANCE_LABELS[lead.echeance])}`,
   ]
     .filter((line): line is string => Boolean(line))

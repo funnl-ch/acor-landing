@@ -33,8 +33,8 @@ export default function PrivacyPage() {
       <p>
         Lorsque vous remplissez le formulaire d’estimation, nous collectons : le
         type de bien, la commune, la surface et le nombre de pièces, l’état du
-        bien, votre échéance de vente, l’adresse du bien, ainsi que votre nom,
-        prénom, numéro de téléphone et, si vous la donnez, adresse e-mail.
+        bien, votre échéance de vente, ainsi que votre nom, prénom, adresse
+        e-mail et, si vous l’indiquez, numéro de téléphone.
       </p>
       <p>
         Lors de votre visite, sont également enregistrés de manière automatique :

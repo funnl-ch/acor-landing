@@ -12,6 +12,7 @@ import { PhoneIcon } from "./PhoneLink";
 
 const LEGAL_LINKS = [
   { href: "/mentions-legales", label: "Mentions légales" },
+  { href: "/conditions-generales", label: "Conditions générales" },
   { href: "/politique-de-confidentialite", label: "Politique de confidentialité" },
 ] as const;
 

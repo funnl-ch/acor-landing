@@ -9,6 +9,10 @@ import { loadTrackingScripts } from "@/lib/tracking";
 const PAGE_NAMES: Record<string, { id: string; name: string }> = {
   "/": { id: "home", name: "Estimation" },
   "/mentions-legales": { id: "mentions-legales", name: "Mentions légales" },
+  "/conditions-generales": {
+    id: "conditions-generales",
+    name: "Conditions générales",
+  },
   "/politique-de-confidentialite": {
     id: "politique-de-confidentialite",
     name: "Politique de confidentialité",

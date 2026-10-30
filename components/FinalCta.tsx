@@ -17,7 +17,7 @@ export function FinalCta() {
               Demander une estimation n’engage à rien.
             </h2>
             <p className="mt-4 text-[17px] font-normal text-white">
-              Six questions, quelques minutes. Un courtier vous transmet
+              Quelques minutes suffisent. Un courtier vous transmet
               l’estimation sous 48 heures ouvrables.
             </p>
             <p className="mt-6">
