@@ -28,6 +28,10 @@ const ECHEANCE_LABELS: Record<LeadPayload["echeance"], string> = {
   renseigne: "Je me renseigne, sans échéance",
 };
 
+function contactName(lead: LeadPayload): string {
+  return [lead.prenom, lead.nom].filter(Boolean).join(" ");
+}
+
 function escapeHtml(value: string): string {
   return value
     .replaceAll("&", "&amp;")
@@ -69,7 +73,7 @@ export function buildLeadEmail(lead: LeadPayload): {
 } {
   const typeLabel = TYPE_LABELS[lead.typeBien];
   const contactLines = [
-    `${lead.prenom} ${lead.nom}`,
+    contactName(lead),
     lead.telephone,
     lead.email,
     `Échéance : ${ECHEANCE_LABELS[lead.echeance]}`,
@@ -111,7 +115,7 @@ export function buildLeadEmail(lead: LeadPayload): {
     .join("\n");
 
   const htmlContact = [
-    escapeHtml(`${lead.prenom} ${lead.nom}`),
+    escapeHtml(contactName(lead)),
     lead.telephone
       ? `<a href="${escapeHtml(telHref(lead.telephone))}">${escapeHtml(lead.telephone)}</a>`
       : undefined,
@@ -139,7 +143,7 @@ export function buildLeadEmail(lead: LeadPayload): {
 </div>`;
 
   return {
-    subject: `Estimation — ${typeLabel} à ${lead.commune} — ${lead.prenom} ${lead.nom}`,
+    subject: `Estimation — ${typeLabel} à ${lead.commune} — ${contactName(lead)}`,
     text,
     html,
   };

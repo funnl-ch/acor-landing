@@ -39,7 +39,13 @@ declare global {
   }
 }
 
-const TOTAL_STEPS = 7;
+const TOTAL_STEPS = 6;
+
+const CONTACT_BENEFITS = [
+  "Estimation professionnelle gratuite",
+  "Aucun mandat ni obligation de vendre",
+  "Votre estimation vous appartient",
+] as const;
 const AUTO_ADVANCE_STEPS = new Set([1, 4, 5]);
 
 function stepTitle(step: number, type: PropertyType | ""): string {
@@ -59,18 +65,9 @@ function stepTitle(step: number, type: PropertyType | ""): string {
         ? "Dans quel état est l’immeuble ?"
         : "Dans quel état est le bien ?",
     "Quand souhaitez-vous vendre ?",
-    "Comment vous appelez-vous ?",
-    "Où recevoir votre estimation ?",
+    "Où vous transmettre l’estimation ?",
   ];
   return nbsp(titles[step - 1] ?? "");
-}
-
-function propertySummary(data: FormState): string {
-  const typeLabel =
-    PROPERTY_TYPES.find((item) => item.value === data.propertyType)?.label ??
-    "Bien";
-  const commune = data.commune.trim();
-  return commune ? `${typeLabel} à ${commune}` : typeLabel;
 }
 
 type FormState = {
@@ -82,7 +79,6 @@ type FormState = {
   condition: Condition | "";
   timeline: Timeline | "";
   firstName: string;
-  lastName: string;
   email: string;
   phone: string;
   consent: boolean;
@@ -103,7 +99,6 @@ const initialState: FormState = {
   condition: "",
   timeline: "",
   firstName: "",
-  lastName: "",
   email: "",
   phone: "",
   consent: false,
@@ -135,9 +130,11 @@ function canContinue(step: number, data: FormState): boolean {
     case 5:
       return data.timeline !== "";
     case 6:
-      return data.firstName.trim() !== "" && data.lastName.trim() !== "";
-    case 7:
-      return emailOk(data.email) && data.consent;
+      return (
+        data.firstName.trim() !== "" &&
+        emailOk(data.email) &&
+        data.consent
+      );
     default:
       return false;
   }
@@ -159,8 +156,17 @@ function optionalString(value: string): string | undefined {
   return trimmed || undefined;
 }
 
+function splitName(value: string): { prenom: string; nom?: string } {
+  const parts = value.trim().split(/\s+/).filter(Boolean);
+  return {
+    prenom: parts[0] ?? "",
+    nom: parts.slice(1).join(" ") || undefined,
+  };
+}
+
 function toLeadBody(data: FormState, eventId: string) {
   const attribution = getOaiAttribution();
+  const name = splitName(data.firstName);
   return {
     typeBien: data.propertyType,
     commune: data.commune.trim(),
@@ -169,8 +175,8 @@ function toLeadBody(data: FormState, eventId: string) {
     surfaceTerrain: optionalNumber(data.landArea),
     etat: data.condition,
     echeance: data.timeline,
-    prenom: data.firstName.trim(),
-    nom: data.lastName.trim(),
+    prenom: name.prenom,
+    nom: name.nom,
     email: data.email.trim(),
     telephone: optionalString(data.phone),
     consentement: true as const,
@@ -201,11 +207,14 @@ export function LeadForm() {
   const [sending, setSending] = useState(false);
   const [communeOpen, setCommuneOpen] = useState(false);
   const [activeOption, setActiveOption] = useState(0);
+  const [readyOpen, setReadyOpen] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const skipInitialFocus = useRef(true);
   const advancingRef = useRef(false);
   const leadTrackedRef = useRef(false);
   const submittingRef = useRef(false);
+  const readySeenRef = useRef(false);
+  const readyCloseRef = useRef<HTMLButtonElement>(null);
   const listId = useId();
 
   const suggestions = useMemo(
@@ -230,13 +239,38 @@ export function LeadForm() {
       skipInitialFocus.current = false;
       return;
     }
+    if (readyOpen) return;
     document.getElementById("lead-first-field")?.focus({ preventScroll: true });
-  }, [step, submitted]);
+  }, [step, submitted, readyOpen]);
+
+  useEffect(() => {
+    if (step !== TOTAL_STEPS || readySeenRef.current) return;
+    readySeenRef.current = true;
+    setReadyOpen(true);
+  }, [step]);
+
+  useEffect(() => {
+    if (!readyOpen) return;
+    readyCloseRef.current?.focus();
+
+    function onKey(event: globalThis.KeyboardEvent) {
+      if (event.key === "Escape") closeReady();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [readyOpen]);
 
   useEffect(() => {
     if (step < 6 || readTrackingConsent() !== "accepted") return;
     window.clarity?.("event", `form_step${step}`);
   }, [step]);
+
+  function closeReady() {
+    setReadyOpen(false);
+    window.setTimeout(() => {
+      document.getElementById("lead-first-field")?.focus({ preventScroll: true });
+    }, 0);
+  }
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setData((current) => ({ ...current, [key]: value }));
@@ -271,6 +305,7 @@ export function LeadForm() {
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (
+      readyOpen ||
       !canContinue(step, data) ||
       sending ||
       submittingRef.current
@@ -288,10 +323,11 @@ export function LeadForm() {
 
     try {
       const eventId = crypto.randomUUID();
+      const name = splitName(data.firstName);
       await setOaiUser({
         email: data.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
+        firstName: name.prenom,
+        lastName: name.nom ?? "",
         phone: data.phone,
         city: data.commune,
       });
@@ -427,6 +463,11 @@ export function LeadForm() {
             {liveMessage}
           </p>
 
+          {step === TOTAL_STEPS && (
+            <p className="hero-copy mb-2 text-[13px] font-medium uppercase tracking-[0.14em] text-white/75">
+              Dernière étape
+            </p>
+          )}
           <h2
             id="form-title"
             ref={headingRef}
@@ -437,11 +478,6 @@ export function LeadForm() {
           >
             {stepTitle(step, data.propertyType)}
           </h2>
-          {step === TOTAL_STEPS && (
-            <p className="hero-copy mt-2 text-body text-white/90">
-              Un courtier ACOR vous la transmet. Indiquez où la recevoir.
-            </p>
-          )}
 
           {/* Hauteur calée sur les étapes 1 à 5 : sans elle, chaque changement
               d'étape déplaçait tout le hero sous le doigt. */}
@@ -691,58 +727,39 @@ export function LeadForm() {
               )}
 
               {step === 6 && (
-                <div className="grid gap-4">
-                  <div className="estimate-ready">
-                    <p className="estimate-ready-kicker">{propertySummary(data)}</p>
-                  </div>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <label htmlFor="lead-first-field" className="field-label">
-                        Prénom
-                      </label>
-                      <input
-                        id="lead-first-field"
-                        className="field-input"
-                        autoComplete="given-name"
-                        value={data.firstName}
-                        onChange={(event) => update("firstName", event.target.value)}
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="lastName" className="field-label">
-                        Nom
-                      </label>
-                      <input
-                        id="lastName"
-                        className="field-input"
-                        autoComplete="family-name"
-                        value={data.lastName}
-                        onChange={(event) => update("lastName", event.target.value)}
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {step === 7 && (
-                <div className="grid gap-4">
+                <div className="grid gap-5">
                   <div>
                     <label htmlFor="lead-first-field" className="field-label">
-                      E-mail
+                      Votre prénom et nom
                     </label>
                     <input
                       id="lead-first-field"
+                      className="field-input"
+                      autoComplete="name"
+                      value={data.firstName}
+                      onChange={(event) => update("firstName", event.target.value)}
+                      placeholder="Prénom Nom"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="email" className="field-label">
+                      Votre adresse e-mail
+                    </label>
+                    <input
+                      id="email"
                       className="field-input"
                       type="email"
                       autoComplete="email"
                       inputMode="email"
                       value={data.email}
                       onChange={(event) => update("email", event.target.value)}
+                      placeholder="exemple@email.ch"
                     />
                   </div>
                   <div>
                     <label htmlFor="phone" className="field-label">
-                      Téléphone <span className="font-normal text-white/70">(facultatif)</span>
+                      Votre numéro de téléphone{" "}
+                      <span className="font-normal text-white/70">(facultatif)</span>
                     </label>
                     <input
                       id="phone"
@@ -752,7 +769,7 @@ export function LeadForm() {
                       inputMode="tel"
                       value={data.phone}
                       onChange={(event) => update("phone", event.target.value)}
-                      placeholder="079 123 45 67"
+                      placeholder="+41 79 000 00 00"
                     />
                   </div>
                   <div className="flex items-start gap-3">
@@ -834,17 +851,81 @@ export function LeadForm() {
                 className="btn-submit mt-3"
                 disabled={!canContinue(TOTAL_STEPS, data) || sending}
               >
-                {sending ? "Envoi en cours" : "Recevoir mon estimation gratuitement"}
+                {sending ? "Envoi en cours" : "Valider ma demande d’estimation"}
               </button>
             )}
           </form>
         </div>
         <p className="hero-copy mt-4 px-1 text-center text-[15px] leading-snug text-white/85">
-          Vos données ne sont ni vendues ni transmises à d’autres agences.
+          {step === TOTAL_STEPS
+            ? "Vos coordonnées ne sont pas revendues. Aucun engagement."
+            : "Vos données ne sont ni vendues ni transmises à d’autres agences."}
         </p>
         <div className="flex justify-center">
           <GoogleRating />
         </div>
+        {readyOpen && (
+          <div
+            className="ready-modal-backdrop"
+            onClick={closeReady}
+          >
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="ready-title"
+              className="ready-modal"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <p className="ready-modal-kicker">Presque prêt</p>
+              <h3 id="ready-title" className="ready-modal-title">
+                Votre demande d’estimation est presque prête !
+              </h3>
+              <p className="ready-modal-copy">
+                Grâce à vos réponses, un expert ACOR pourra préparer une
+                estimation adaptée à votre bien.
+              </p>
+              <ul className="contact-benefits">
+                {CONTACT_BENEFITS.map((item) => (
+                  <li key={item}>
+                    <CheckIcon />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <button
+                ref={readyCloseRef}
+                type="button"
+                className="btn-submit ready-modal-btn"
+                onClick={closeReady}
+              >
+                Continuer
+              </button>
+            </div>
+          </div>
+        )}
     </section>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg className="contact-check" viewBox="0 0 24 24" aria-hidden="true">
+      <circle
+        cx="12"
+        cy="12"
+        r="10.2"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.7"
+      />
+      <path
+        d="M7.4 12.4 10.5 15.4 16.6 8.8"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }

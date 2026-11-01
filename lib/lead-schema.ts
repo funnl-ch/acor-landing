@@ -51,7 +51,7 @@ export const leadSchema = z.object({
   etat: z.enum(ETAT_BIEN),
   echeance: z.enum(ECHEANCE),
   prenom: z.string().trim().min(1),
-  nom: z.string().trim().min(1),
+  nom: optionalText,
   email: z.email(),
   telephone: optionalText,
   adresseBien: optionalText,

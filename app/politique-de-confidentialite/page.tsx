@@ -33,8 +33,8 @@ export default function PrivacyPage() {
       <p>
         Lorsque vous remplissez le formulaire d’estimation, nous collectons : le
         type de bien, la commune, la surface et le nombre de pièces, l’état du
-        bien, votre échéance de vente, ainsi que votre nom, prénom, adresse
-        e-mail et, si vous l’indiquez, numéro de téléphone.
+        bien, votre échéance de vente, ainsi que votre prénom et nom, adresse
+        e-mail et, si vous l’indiquez, votre numéro de téléphone.
       </p>
       <p>
         Lors de votre visite, sont également enregistrés de manière automatique :
@@ -84,8 +84,8 @@ export default function PrivacyPage() {
         permet de savoir quelles annonces diffusées dans ChatGPT amènent des
         demandes d’estimation. Ce service dépose un cookie sur votre appareil,
         enregistre votre visite et, si vous envoyez le formulaire, des
-        identifiants hachés : numéro de téléphone, nom, prénom et, si vous
-        l’avez indiquée, adresse e-mail. Le hachage empêche de lire ces identifiants en clair. Il est
+        identifiants hachés : prénom, adresse e-mail et, si vous l’indiquez,
+        numéro de téléphone. Le hachage empêche de lire ces identifiants en clair. Il est
         exploité par OpenAI, dont les serveurs se situent aux États-Unis : vos
         données de navigation peuvent donc être transférées hors de Suisse,
         vers un pays dont la législation en matière de protection des données
