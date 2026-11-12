@@ -21,7 +21,11 @@ export const metadata: Metadata = {
     "Décrivez votre bien en quelques minutes. Un courtier ACOR vous transmet l’estimation sous 48 heures ouvrables. Demande gratuite et sans engagement.",
   robots: { index: true, follow: true },
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon-32.png", type: "image/png", sizes: "32x32" },
+      { url: "/icon-16.png", type: "image/png", sizes: "16x16" },
+    ],
     apple: "/apple-touch-icon.png",
   },
 };
