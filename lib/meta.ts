@@ -29,7 +29,7 @@ export function installMetaPixel(): void {
 
   const fbq = function (...args: unknown[]) {
     if (typeof fbq.callMethod === "function") {
-      fbq.callMethod.apply(fbq, args);
+      Reflect.apply(fbq.callMethod, fbq, args);
     } else {
       fbq.queue.push(args);
     }
