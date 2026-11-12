@@ -4,7 +4,7 @@ import { GOOGLE_RATING } from "@/components/GoogleRating";
 
 const STATS = [
   {
-    value: String(AGENCY.soldListings),
+    value: AGENCY.soldListings,
     label: "biens vendus",
   },
   {

@@ -1,4 +1,5 @@
 import { readTrackingConsent } from "@/lib/consent";
+import { installMetaPixel } from "@/lib/meta";
 import { OAI_PIXEL_ID } from "@/lib/oai-hash";
 
 const CLARITY_ID = "ysn6d1qrfs";
@@ -40,10 +41,11 @@ function installClarity(): void {
   document.head.appendChild(script);
 }
 
-/** Charge le pixel OpenAI et Clarity. Sans effet tant que le visiteur n’a pas accepté. */
+/** Charge les pixels OpenAI, Meta et Clarity. Sans effet tant que le visiteur n’a pas accepté. */
 export function loadTrackingScripts(): void {
   if (typeof window === "undefined") return;
   if (readTrackingConsent() !== "accepted") return;
   installOpenAiPixel();
+  installMetaPixel();
   installClarity();
 }

@@ -3,6 +3,7 @@
 import { useEffect, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import { readTrackingConsent, subscribeTrackingConsent } from "@/lib/consent";
+import { trackMetaPageView } from "@/lib/meta";
 import { setOaiContext, trackPageViewed } from "@/lib/oai";
 import { loadTrackingScripts } from "@/lib/tracking";
 
@@ -34,6 +35,7 @@ export function OaiPageView() {
       name: pathname,
     };
     loadTrackingScripts();
+    trackMetaPageView();
     void setOaiContext();
     trackPageViewed(page.id, page.name);
   }, [pathname, consent]);

@@ -13,6 +13,7 @@ import { GoogleRating } from "@/components/GoogleRating";
 import { PropertyTypeIcon } from "@/components/PropertyTypeIcon";
 import { filterCommunes } from "@/lib/communes";
 import { readTrackingConsent } from "@/lib/consent";
+import { trackMetaLead } from "@/lib/meta";
 import {
   getOaiAttribution,
   setOaiUser,
@@ -351,6 +352,15 @@ export function LeadForm() {
           { type: "customer_action" },
           { event_id: eventId },
         );
+        trackMetaLead({
+          eventId,
+          email: data.email,
+          firstName: name.prenom,
+          lastName: name.nom ?? "",
+          phone: data.phone,
+          city: data.commune,
+          externalId: getOaiAttribution().externalId,
+        });
       }
 
       setSubmitted(true);

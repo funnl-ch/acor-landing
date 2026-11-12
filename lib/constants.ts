@@ -12,7 +12,7 @@ export const AGENCY = {
   agencyCities: ["Sion", "Sierre", "Martigny", "Lausanne"],
   brokers: 9,
   expertsFederal: 2,
-  soldListings: 390,
+  soldListings: "+400",
 } as const;
 
 // pas d'URL : aucun lien sortant sur cette landing, le trafic est payant

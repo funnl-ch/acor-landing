@@ -1,6 +1,6 @@
 export const GOOGLE_RATING = {
   score: "4,9",
-  count: "58 avis",
+  count: "59 avis",
 } as const;
 
 type GoogleRatingProps = {

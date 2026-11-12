@@ -11,13 +11,16 @@ type Stat = {
 };
 
 function parseStat(raw: string) {
-  const decimals = raw.includes(",") ? (raw.split(",")[1]?.length ?? 1) : 0;
-  const end = Number(raw.replace(",", "."));
-  return { end, decimals };
+  const match = raw.match(/^(\D*)(\d+(?:,\d+)?)/);
+  const prefix = match?.[1] ?? "";
+  const number = match?.[2] ?? raw;
+  const decimals = number.includes(",") ? (number.split(",")[1]?.length ?? 1) : 0;
+  const end = Number(number.replace(",", "."));
+  return { prefix, end, decimals };
 }
 
-function formatStat(n: number, decimals: number) {
-  return n.toFixed(decimals).replace(".", ",");
+function formatStat(n: number, decimals: number, prefix: string) {
+  return prefix + n.toFixed(decimals).replace(".", ",");
 }
 
 function easeOutCubic(t: number) {
@@ -37,9 +40,9 @@ function CountUp({
   play: boolean;
   delay: number;
 }) {
-  const { end, decimals } = parseStat(value);
+  const { prefix, end, decimals } = parseStat(value);
   const [text, setText] = useState(() =>
-    Number.isFinite(end) ? formatStat(0, decimals) : value,
+    Number.isFinite(end) ? formatStat(0, decimals, prefix) : value,
   );
 
   useEffect(() => {
@@ -55,7 +58,7 @@ function CountUp({
       const tick = (now: number) => {
         if (start === null) start = now;
         const t = Math.min(1, (now - start) / DURATION_MS);
-        setText(formatStat(end * easeOutCubic(t), decimals));
+        setText(formatStat(end * easeOutCubic(t), decimals, prefix));
         if (t < 1) raf = requestAnimationFrame(tick);
         else setText(value);
       };
@@ -66,7 +69,7 @@ function CountUp({
       window.clearTimeout(timeout);
       cancelAnimationFrame(raf);
     };
-  }, [play, value, end, decimals, delay]);
+  }, [play, value, prefix, end, decimals, delay]);
 
   return (
     <span className="tabular-nums" aria-hidden="true">

@@ -52,8 +52,9 @@ export default function PrivacyPage() {
       </p>
       <p>
         Si vous l’acceptez, les données de navigation servent aussi à mesurer
-        quelles annonces diffusées dans ChatGPT amènent une demande, et à
-        comprendre comment le site est utilisé afin de l’améliorer.
+        quelles annonces diffusées dans ChatGPT, sur Facebook et sur Instagram
+        amènent une demande, et à comprendre comment le site est utilisé afin
+        de l’améliorer.
       </p>
 
       <h2>Base légale</h2>
@@ -74,8 +75,8 @@ export default function PrivacyPage() {
         confidentialité.
       </p>
       <p>
-        Si vous acceptez les cookies de mesure, OpenAI et Microsoft reçoivent
-        les données de navigation décrites ci-dessous.
+        Si vous acceptez les cookies de mesure, OpenAI, Meta et Microsoft
+        reçoivent les données de navigation décrites ci-dessous.
       </p>
 
       <h2>Mesure publicitaire</h2>
@@ -92,6 +93,17 @@ export default function PrivacyPage() {
         diffère du droit suisse.
       </p>
       <p>
+        Avec le même accord, ce site utilise le pixel Meta, qui nous permet de
+        mesurer les visites et les demandes d’estimation issues des annonces
+        diffusées sur Facebook et Instagram. Ce service dépose des cookies sur
+        votre appareil et enregistre votre visite. Si vous envoyez le
+        formulaire, l’adresse e-mail, le nom et, si vous l’indiquez, le numéro
+        de téléphone sont transmis au pixel, qui les hache avant envoi. Le
+        service est exploité par Meta Platforms, dont les serveurs se situent
+        hors de Suisse : vos données de navigation peuvent donc être
+        transférées hors de Suisse.
+      </p>
+      <p>
         Avec le même accord, ce site utilise Microsoft Clarity, qui enregistre
         des sessions de navigation (pages vues, clics, défilement) afin
         d’améliorer le site. Le service est exploité par Microsoft, dont les
@@ -99,8 +111,8 @@ export default function PrivacyPage() {
       </p>
       <p>
         Vous pouvez refuser ces cookies dès votre arrivée, ou modifier votre
-        choix plus tard via le lien Cookies en bas de page. Sans accord, le
-        pixel OpenAI et Clarity ne sont pas chargés.
+        choix plus tard via le lien Cookies en bas de page. Sans accord, les
+        pixels OpenAI et Meta, ainsi que Clarity, ne sont pas chargés.
       </p>
 
       <h2>Durée de conservation</h2>
@@ -113,8 +125,8 @@ export default function PrivacyPage() {
       </p>
       <p>
         Nous ne conservons pas, de notre côté, un fichier séparé de vos visites.
-        Les données de mesure envoyées à OpenAI et à Microsoft sont traitées par
-        ces prestataires selon leurs propres durées.
+        Les données de mesure envoyées à OpenAI, à Meta et à Microsoft sont
+        traitées par ces prestataires selon leurs propres durées.
       </p>
 
       <h2>Sécurité</h2>
@@ -150,7 +162,7 @@ export default function PrivacyPage() {
         Cette politique peut être adaptée. La version en vigueur est celle
         publiée sur cette page.
       </p>
-      <p>Dernière mise à jour : 15 octobre 2026</p>
+      <p>Dernière mise à jour : 12 novembre 2026</p>
     </LegalArticle>
   );
 }

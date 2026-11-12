@@ -3,7 +3,16 @@ const CONSENT_EVENT = "acor-tracking-consent";
 
 export type TrackingConsent = "accepted" | "refused";
 
-const TRACKING_COOKIES = ["__oai_eid", "__oppref", "__obref", "_clck", "_clsk", "CLID"];
+const TRACKING_COOKIES = [
+  "__oai_eid",
+  "__oppref",
+  "__obref",
+  "_clck",
+  "_clsk",
+  "CLID",
+  "_fbp",
+  "_fbc",
+];
 
 export function readTrackingConsent(): TrackingConsent | null {
   if (typeof window === "undefined") return null;
